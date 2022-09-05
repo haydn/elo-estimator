@@ -15,15 +15,15 @@ const ValuePage: NextPage = () => {
         localStorageKey="value_comparisons"
         title={
           <>
-            Which of these issues{" "}
+            Which of these issues would be{" "}
             <abbr title="Improves the customer's experience, improves our team's productivity or has strategic importance. (Hint: a 1&times; improvement across 100% of users is equivalent to 2&times; improvement across 50% of users.)">
-              makes the most sense
+              most valuable
             </abbr>{" "}
             to{" "}
-            <abbr title="Either complete or, because it's not worthwhile or has been superseded, canceled.">
-              resolve first
-            </abbr>
-            ?
+            <abbr title="Either complete or, because it's not worthwhile or has been superseded, cancel.">
+              resolve
+            </abbr>{" "}
+            first?
           </>
         }
         buttonLabel={(issue) => `${issue.identifier} should be resolved first`}
