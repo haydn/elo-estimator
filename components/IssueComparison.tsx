@@ -61,7 +61,7 @@ const IssueComparison = ({
               loadIssues();
             }}
           >
-            {buttonLabel(issueA)}
+            {buttonLabel(issueB)}
           </button>
         </div>
       </div>
