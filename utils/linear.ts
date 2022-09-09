@@ -52,6 +52,7 @@ const getIssues = async (
                   }
                 }
                 cycle: {
+                  null: true
                   or: [
                     { startsAt: { gt: "P0D" } }
                     { endsAt: { lt: "P0D" } }
