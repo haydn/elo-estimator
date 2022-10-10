@@ -87,10 +87,10 @@ const IndexPage: NextPage = () => {
                   <td>{stats[id].effort.scaled.toFixed(2)}</td>
                   <td>{stats[id].value.scaled.toFixed(2)}</td>
                   <td>
-                    {stats[id].effort.comparisons >= 5
+                    {stats[id].effort.comparisons >= 4
                       ? recommendedEstimate
                       : "-"}{" "}
-                    {stats[id].effort.comparisons >= 5 &&
+                    {stats[id].effort.comparisons >= 4 &&
                     issue.estimate !== recommendedEstimate ? (
                       <OneTimeButton
                         onClick={async () => {

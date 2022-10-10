@@ -5,7 +5,7 @@ type Props = {
 };
 
 const ComparisonValue = ({ children }: Props) => (
-  <span className={children === 0 ? none : children < 5 ? low : undefined}>
+  <span className={children === 0 ? none : children < 4 ? low : undefined}>
     {children}
   </span>
 );

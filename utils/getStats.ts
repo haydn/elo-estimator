@@ -10,7 +10,7 @@ const getStats = (issues: Array<IssueSummary>, localStorageKey: string) => {
     config: {
       initialRating: 1200,
       denominator: 400,
-      thresholds: [5, 10],
+      thresholds: [4, 8],
       kFactors: [80, 40, 20]
     },
     entities: new Set(
