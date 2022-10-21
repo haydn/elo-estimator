@@ -1,4 +1,4 @@
-import { style, globalStyle } from "@vanilla-extract/css";
+import { globalStyle, style } from "@vanilla-extract/css";
 import theme from "../utils/theme.css";
 
 globalStyle(":root", {
@@ -34,8 +34,8 @@ globalStyle("th, td", {
   textAlign: "left",
 });
 
-export const container = style({
+export const splash = style({
   display: "grid",
+  minHeight: "100vh",
   placeContent: "center",
-  height: "100vh"
 });

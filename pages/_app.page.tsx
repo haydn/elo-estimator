@@ -4,7 +4,7 @@ import { useAsync } from "react-use";
 import SettingsForm from "../components/SettingsForm";
 import AppContext, { Context } from "../utils/AppContext";
 import { getIssues } from "../utils/linear";
-import { container } from "./_app.css";
+import { splash } from "./_app.css";
 
 const App = ({ Component, pageProps }: AppProps) => {
   const [context, setContext] = useState<Context | null>(null);
@@ -26,7 +26,7 @@ const App = ({ Component, pageProps }: AppProps) => {
   });
 
   return missingCredentials ? (
-    <div className={container}>
+    <div className={splash}>
       <SettingsForm />
     </div>
   ) : context ? (
