@@ -4,6 +4,7 @@ import { EloTournament } from "./elo";
 import getStats from "./getStats";
 import { getIssue, IssueDetail, IssueSummary } from "./linear";
 import weightedRandomPick from "./weightedRandomPick";
+import formatISO from "date-fns/formatISO";
 
 const useIssues = (
   credentials: Credentials,
@@ -60,7 +61,7 @@ const useIssues = (
     const comparisons: EloTournament["comparisons"] = JSON.parse(
       window.localStorage.getItem(localStorageKey) ?? "[]"
     );
-    comparisons.push({ entities, result });
+    comparisons.push({ entities, result, date: formatISO(new Date()) });
     window.localStorage.setItem(localStorageKey, JSON.stringify(comparisons));
   };
 

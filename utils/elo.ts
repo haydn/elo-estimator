@@ -14,6 +14,7 @@ type Config = {
 type Comparison = {
   entities: [string, string];
   result: number;
+  date: string;
 };
 
 /**
@@ -54,7 +55,7 @@ const calculateStats = (tournament: EloTournament) => {
   for (let entity of tournament.entities) {
     result[entity] = {
       comparisons: 0,
-      rating: initialRating
+      rating: initialRating,
     };
   }
 
