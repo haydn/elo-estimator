@@ -1,4 +1,4 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { Context } from "../utils/AppContext";
 import { IssueDetail } from "../utils/linear";
 import useIssues from "../utils/useIssues";
@@ -25,6 +25,10 @@ const IssueComparison = ({
     context.data.issues,
     localStorageKey
   );
+
+  useEffect(() => {
+    loadIssues();
+  }, [loadIssues]);
 
   const [order, setOrder] = useState<Array<string>>([]);
 

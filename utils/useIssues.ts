@@ -5,6 +5,7 @@ import getStats from "./getStats";
 import { getIssue, IssueDetail, IssueSummary } from "./linear";
 import weightedRandomPick from "./weightedRandomPick";
 import formatISO from "date-fns/formatISO";
+import { v4 as uuid } from "uuid";
 
 const useIssues = (
   credentials: Credentials,
@@ -57,17 +58,37 @@ const useIssues = (
     }
   }, [credentials, issues, localStorageKey]);
 
-  const addComparison = (entities: [string, string], result: number) => {
-    const comparisons: EloTournament["comparisons"] = JSON.parse(
-      window.localStorage.getItem(localStorageKey) ?? "[]"
-    );
-    comparisons.push({ entities, result, date: formatISO(new Date()) });
-    window.localStorage.setItem(localStorageKey, JSON.stringify(comparisons));
-  };
+  const addComparison = useCallback(
+    (entities: [string, string], result: number) => {
+      const comparisons: EloTournament["comparisons"] = JSON.parse(
+        window.localStorage.getItem(localStorageKey) ?? "[]"
+      );
+      comparisons.push({
+        id: uuid(),
+        entities,
+        result,
+        date: formatISO(new Date()),
+      });
+      window.localStorage.setItem(localStorageKey, JSON.stringify(comparisons));
+    },
+    [localStorageKey]
+  );
+
+  const removeComparison = useCallback(
+    (id: string) => {
+      const comparisons: EloTournament["comparisons"] = JSON.parse(
+        window.localStorage.getItem(localStorageKey) ?? "[]"
+      );
+      window.localStorage.setItem(
+        localStorageKey,
+        JSON.stringify(comparisons.filter((issue) => issue.id !== id))
+      );
+    },
+    [localStorageKey]
+  );
 
   useEffect(() => {
     alive.current = true;
-    if (issues) loadIssues();
     return () => {
       alive.current = false;
     };
@@ -77,6 +98,7 @@ const useIssues = (
     addComparison,
     issueList,
     loadIssues,
+    removeComparison,
   };
 };
 

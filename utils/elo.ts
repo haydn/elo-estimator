@@ -12,6 +12,7 @@ type Config = {
 };
 
 type Comparison = {
+  id: string;
   entities: [string, string];
   result: number;
   date: string;
