@@ -3,7 +3,6 @@ import formatDistance from "date-fns/formatDistance";
 import parseISO from "date-fns/parseISO";
 import type { NextPage } from "next";
 import { Fragment, useContext } from "react";
-import invariant from "tiny-invariant";
 import Layout from "../components/Layout";
 import SettingsForm from "../components/SettingsForm";
 import AppContext from "../utils/AppContext";
@@ -19,8 +18,6 @@ enum ComparisonType {
 }
 
 const SettingsPage: NextPage = () => {
-  const { data } = useContext(AppContext);
-
   const effortComparisons: EloTournament["comparisons"] = JSON.parse(
     window.localStorage.getItem(EFFORT_LOCAL_STORAGE_KEY) ?? "[]"
   );
@@ -86,15 +83,12 @@ const Label = ({
     ({ id }) => id === comparison.entities[1]
   );
 
-  invariant(issueA);
-  invariant(issueB);
-
   switch (comparison.type) {
     case ComparisonType.Effort:
       return (
         <span>
-          <abbr title={issueA.title}>{issueA.key}</abbr> is quicker to resolve
-          than <abbr title={issueB.title}>{issueB.key}</abbr>{" "}
+          <abbr title={issueA?.title}>{issueA?.key}</abbr> is quicker to resolve
+          than <abbr title={issueB?.title}>{issueB?.key}</abbr>{" "}
           <button
             onClick={() => {
               removeEffortComparison(comparison.id);
@@ -107,8 +101,8 @@ const Label = ({
     case ComparisonType.Value:
       return (
         <span>
-          <abbr title={issueA.title}>{issueA.key}</abbr> should be resolved
-          before <abbr title={issueB.title}>{issueB.key}</abbr>{" "}
+          <abbr title={issueA?.title}>{issueA?.key}</abbr> should be resolved
+          before <abbr title={issueB?.title}>{issueB?.key}</abbr>{" "}
           <button
             onClick={() => {
               removeValueComparison(comparison.id);
