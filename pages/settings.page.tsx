@@ -31,7 +31,8 @@ const SettingsPage: NextPage = () => {
   const comparisons = effortComparisons
     .map((c) => ({ ...c, type: ComparisonType.Effort }))
     .concat(valueComparisons.map((c) => ({ ...c, type: ComparisonType.Value })))
-    .sort((a, b) => compareDesc(parseISO(a.date), parseISO(b.date)));
+    .sort((a, b) => compareDesc(parseISO(a.date), parseISO(b.date)))
+    .slice(0, 200);
 
   return (
     <Layout>
