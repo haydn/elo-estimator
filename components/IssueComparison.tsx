@@ -1,67 +1,84 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Context } from "../utils/AppContext";
 import { IssueDetail } from "../utils/linear";
 import useIssues from "../utils/useIssues";
 import IssueCard from "./IssueCard";
-import { footer, header, main } from "./IssueComparison.css";
+import { buttons, footer, header, main, submit } from "./IssueComparison.css";
 
 type Props = {
   context: Context;
   localStorageKey: string;
   title: ReactNode;
-  buttonLabel: (issue: IssueDetail) => string;
+  firstButtonLabel: (issue: IssueDetail) => string;
+  successiveButtonLabel: (issue: IssueDetail) => string;
 };
 
 const IssueComparison = ({
   context,
   localStorageKey,
   title,
-  buttonLabel,
+  firstButtonLabel,
+  successiveButtonLabel,
 }: Props) => {
-  const { issueA, issueB, addComparison, loadIssues } = useIssues(
+  const { issueList, addComparison, loadIssues } = useIssues(
     context.credentials,
     context.data.issues,
     localStorageKey
   );
 
-  return issueA && issueB ? (
+  const [order, setOrder] = useState<Array<string>>([]);
+
+  return issueList.length > 0 ? (
     <>
       <div className={header}>
         <h1>{title}</h1>
       </div>
       <div className={main}>
-        <IssueCard issue={issueA} />
-        <IssueCard issue={issueB} />
+        {issueList.map((issue) => (
+          <IssueCard key={issue.id} issue={issue} />
+        ))}
       </div>
       <div className={footer}>
-        <div>
-          <button
-            onClick={() => {
-              addComparison([issueA.id, issueB.id], 1);
-              loadIssues();
-            }}
-          >
-            {buttonLabel(issueA)}
-          </button>
+        <div className={buttons}>
+          {issueList.map((issue) =>
+            order.includes(issue.id) ? (
+              <span key={issue.id}>{order.indexOf(issue.id) + 1}</span>
+            ) : (
+              <button
+                key={issue.id}
+                onClick={() => {
+                  setOrder((current) => current.concat([issue.id]));
+                }}
+              >
+                {order.length === 0
+                  ? firstButtonLabel(issue)
+                  : successiveButtonLabel(issue)}
+              </button>
+            )
+          )}
         </div>
-        <div>
+        <div className={submit}>
           <button
             onClick={() => {
-              addComparison([issueA.id, issueB.id], 0.5);
-              loadIssues();
+              setOrder([]);
             }}
+            disabled={order.length === 0}
           >
-            Draw
+            Reset
           </button>
-        </div>
-        <div>
           <button
             onClick={() => {
-              addComparison([issueA.id, issueB.id], 0);
+              for (let i = 0; i < order.length; i++) {
+                for (let j = i + 1; j < order.length; j++) {
+                  addComparison([order[i], order[j]], 1);
+                }
+              }
               loadIssues();
+              setOrder([]);
             }}
+            disabled={order.length !== issueList.length}
           >
-            {buttonLabel(issueB)}
+            Submit
           </button>
         </div>
       </div>

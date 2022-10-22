@@ -1,10 +1,8 @@
 import type { NextPage } from "next";
 import { useContext } from "react";
-import IssueCard from "../components/IssueCard";
 import IssueComparison from "../components/IssueComparison";
 import Layout from "../components/Layout";
 import AppContext from "../utils/AppContext";
-import useIssues from "../utils/useIssues";
 
 const ValuePage: NextPage = () => {
   const context = useContext(AppContext);
@@ -26,7 +24,12 @@ const ValuePage: NextPage = () => {
             first?
           </>
         }
-        buttonLabel={(issue) => `${issue.identifier} should be resolved first`}
+        firstButtonLabel={(issue) =>
+          `${issue.identifier} should be resolved first`
+        }
+        successiveButtonLabel={(issue) =>
+          `${issue.identifier} should be resolved next`
+        }
       />
     </Layout>
   );

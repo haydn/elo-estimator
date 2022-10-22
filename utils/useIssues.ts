@@ -12,43 +12,49 @@ const useIssues = (
 ) => {
   const alive = useRef<boolean>(false);
 
-  const [issueA, setIssueA] = useState<IssueDetail | null>(null);
-  const [issueB, setIssueB] = useState<IssueDetail | null>(null);
+  const [issueList, setIssueList] = useState<Array<IssueDetail>>([]);
 
   const loadIssues = useCallback(async () => {
-    setIssueA(null);
-    setIssueB(null);
+    setIssueList([]);
 
     const stats = getStats(issues, localStorageKey);
 
     if (issues.length > 1) {
-      const idA = weightedRandomPick(
-        [...issues.map(({ id }) => id)].sort(
-          (a, b) => stats[a].comparisons - stats[b].comparisons
-        ),
-        8
-      );
+      const ids: Array<string> = [];
 
-      const idB = weightedRandomPick(
-        [...issues.map(({ id }) => id)]
-          .filter((x) => x !== idA)
-          .sort(
-            (a, b) =>
-              Math.abs(stats[idA].rating - stats[a].rating) -
-              Math.abs(stats[idA].rating - stats[b].rating)
+      ids.push(
+        weightedRandomPick(
+          [...issues.map(({ id }) => id)].sort(
+            (a, b) => stats[a].comparisons - stats[b].comparisons
           ),
-        2
+          8
+        )
       );
 
-      const a = await getIssue(credentials, idA);
-      const b = await getIssue(credentials, idB);
+      for (let i = 0; i < 3; i++) {
+        ids.push(
+          weightedRandomPick(
+            [...issues.map(({ id }) => id)]
+              .filter((x) => !ids.includes(x))
+              .sort(
+                (a, b) =>
+                  Math.abs(stats[ids[0]].rating - stats[a].rating) -
+                  Math.abs(stats[ids[0]].rating - stats[b].rating)
+              ),
+            2
+          )
+        );
+      }
+
+      const newIssues: Array<IssueDetail> = await Promise.all(
+        ids.map((id) => getIssue(credentials, id))
+      );
 
       if (alive.current) {
-        setIssueA(a);
-        setIssueB(b);
+        setIssueList(newIssues);
       }
     }
-  }, [credentials, issues, setIssueA, setIssueB, localStorageKey]);
+  }, [credentials, issues, localStorageKey]);
 
   const addComparison = (entities: [string, string], result: number) => {
     const comparisons: EloTournament["comparisons"] = JSON.parse(
@@ -67,9 +73,8 @@ const useIssues = (
   }, [alive, issues, loadIssues]);
 
   return {
-    issueA,
-    issueB,
     addComparison,
+    issueList,
     loadIssues,
   };
 };

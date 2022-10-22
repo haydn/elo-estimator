@@ -32,7 +32,10 @@ const EffortPage: NextPage = () => {
             )?
           </>
         }
-        buttonLabel={(issue) => `${issue.identifier} is quickest`}
+        firstButtonLabel={(issue) => `${issue.identifier} is quickest`}
+        successiveButtonLabel={(issue) =>
+          `${issue.identifier} is next quickest`
+        }
       />
     </Layout>
   );
