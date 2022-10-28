@@ -27,7 +27,7 @@ const IssueComparison = ({
   );
 
   useEffect(() => {
-    loadIssues();
+    loadIssues(5);
   }, [loadIssues]);
 
   const [order, setOrder] = useState<Array<string>>([]);
@@ -77,7 +77,7 @@ const IssueComparison = ({
                   addComparison([order[i], order[j]], 1);
                 }
               }
-              loadIssues();
+              loadIssues(5);
               setOrder([]);
             }}
             disabled={order.length !== issueList.length}

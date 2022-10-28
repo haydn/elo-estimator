@@ -16,47 +16,50 @@ const useIssues = (
 
   const [issueList, setIssueList] = useState<Array<IssueDetail>>([]);
 
-  const loadIssues = useCallback(async () => {
-    setIssueList([]);
+  const loadIssues = useCallback(
+    async (numberOfIssues: number = 4) => {
+      setIssueList([]);
 
-    const stats = getStats(issues, localStorageKey);
+      const stats = getStats(issues, localStorageKey);
 
-    if (issues.length > 1) {
-      const ids: Array<string> = [];
+      if (issues.length > 1) {
+        const ids: Array<string> = [];
 
-      ids.push(
-        weightedRandomPick(
-          [...issues.map(({ id }) => id)].sort(
-            (a, b) => stats[a].comparisons - stats[b].comparisons
-          ),
-          8
-        )
-      );
-
-      for (let i = 0; i < 3; i++) {
         ids.push(
           weightedRandomPick(
-            [...issues.map(({ id }) => id)]
-              .filter((x) => !ids.includes(x))
-              .sort(
-                (a, b) =>
-                  Math.abs(stats[ids[0]].rating - stats[a].rating) -
-                  Math.abs(stats[ids[0]].rating - stats[b].rating)
-              ),
-            2
+            [...issues.map(({ id }) => id)].sort(
+              (a, b) => stats[a].comparisons - stats[b].comparisons
+            ),
+            8
           )
         );
-      }
 
-      const newIssues: Array<IssueDetail> = await Promise.all(
-        ids.map((id) => getIssue(credentials, id))
-      );
+        for (let i = 0; i < numberOfIssues - 1; i++) {
+          ids.push(
+            weightedRandomPick(
+              [...issues.map(({ id }) => id)]
+                .filter((x) => !ids.includes(x))
+                .sort(
+                  (a, b) =>
+                    Math.abs(stats[ids[0]].rating - stats[a].rating) -
+                    Math.abs(stats[ids[0]].rating - stats[b].rating)
+                ),
+              2
+            )
+          );
+        }
 
-      if (alive.current) {
-        setIssueList(newIssues);
+        const newIssues: Array<IssueDetail> = await Promise.all(
+          ids.map((id) => getIssue(credentials, id))
+        );
+
+        if (alive.current) {
+          setIssueList(newIssues);
+        }
       }
-    }
-  }, [credentials, issues, localStorageKey]);
+    },
+    [credentials, issues, localStorageKey]
+  );
 
   const addComparison = useCallback(
     (entities: [string, string], result: number) => {
