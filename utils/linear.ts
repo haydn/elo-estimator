@@ -30,7 +30,8 @@ type IssueDetail = {
 };
 
 const getIssues = async (
-  credentials: Credentials
+  credentials: Credentials,
+  cursor?: string
 ): Promise<Array<IssueSummary>> => {
   const response = await fetch("https://api.linear.app/graphql", {
     method: "POST",
@@ -40,11 +41,12 @@ const getIssues = async (
     },
     body: JSON.stringify({
       query: `
-        {
-          team(id: "${credentials.linearTeamId}") {
+        query GetIssues($id: String!, $cursor: String) {
+          team(id: $id) {
             key
             issues(
               first: 250
+              after: $cursor
               filter: {
                 state: {
                   type: {
@@ -79,12 +81,16 @@ const getIssues = async (
           }
         }
       `,
+      variables: {
+        id: credentials.linearTeamId,
+        cursor,
+      },
     }),
   });
 
   const { data } = await response.json();
 
-  return (data?.team?.issues?.edges ?? [])
+  const result = (data?.team?.issues?.edges ?? [])
     .filter((edge: any) => edge?.node?.parent?.id === undefined)
     .map((edge: any) => ({
       id: edge?.node?.id,
@@ -92,6 +98,12 @@ const getIssues = async (
       title: edge?.node?.title,
       estimate: edge?.node?.estimate,
     }));
+
+  return data?.team?.issues?.pageInfo?.hasNextPage === true
+    ? result.concat(
+        await getIssues(credentials, data?.team?.issues?.pageInfo?.endCursor)
+      )
+    : result;
 };
 
 const getIssue = async (
