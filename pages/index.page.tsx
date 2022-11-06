@@ -59,6 +59,9 @@ const IndexPage: NextPage = () => {
         </thead>
         <tbody>
           {data.issues
+            .filter(
+              (issue) => issue.state === "triage" || issue.state === "backlog"
+            )
             .map(({ id }) => id)
             .sort((a, b) => stats[b].priority - stats[a].priority)
             .map((id) => {
@@ -71,7 +74,7 @@ const IndexPage: NextPage = () => {
               );
               return issue ? (
                 <tr key={issue.id}>
-                  <td>{issue.key}</td>
+                  <td>{issue.identifier}</td>
                   <td>{issue.title}</td>
                   <td>{stats[id].priority.toFixed(2)}</td>
                   <td>
@@ -102,7 +105,9 @@ const IndexPage: NextPage = () => {
                             }
                           );
                           if (!success) {
-                            window.alert(`Problem updating ${issue.key}.`);
+                            window.alert(
+                              `Problem updating ${issue.identifier}.`
+                            );
                           }
                         }}
                       >

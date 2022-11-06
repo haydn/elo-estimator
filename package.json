@@ -11,8 +11,12 @@
   "dependencies": {
     "@vanilla-extract/css": "^1.7.2",
     "@vanilla-extract/next-plugin": "^2.0.2",
+    "@visx/network": "^2.10.0",
+    "@visx/responsive": "^2.10.0",
     "@visx/scale": "^2.2.2",
+    "d3-force": "^3.0.0",
     "date-fns": "^2.29.3",
+    "graph-fns": "^0.3.0",
     "marked": "^4.0.18",
     "next": "12.2.5",
     "react": "18.2.0",
@@ -22,6 +26,7 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@types/d3-force": "^3.0.3",
     "@types/dedent": "^0.7.0",
     "@types/marked": "^4.0.3",
     "@types/node": "18.7.3",

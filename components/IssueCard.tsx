@@ -3,10 +3,12 @@ import { marked } from "marked";
 import React from "react";
 import theme from "../utils/theme.css";
 import { container } from "./IssueCard.css";
+import RelationshipGraph from "./RelationshipGraph";
+import { Context } from "../utils/AppContext";
 
-type Props = { issue: IssueDetail };
+type Props = { context: Context; issue: IssueDetail };
 
-const IssueCard = ({ issue }: Props) => (
+const IssueCard = ({ context, issue }: Props) => (
   <div className={container}>
     <small>
       {issue.identifier}
@@ -31,6 +33,7 @@ const IssueCard = ({ issue }: Props) => (
         </ul>
       </>
     ) : null}
+    <RelationshipGraph data={context.data} issueIdentifier={issue.identifier} />
     {issue.comments.length > 0 ? (
       <>
         <hr />

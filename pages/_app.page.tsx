@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useAsync } from "react-use";
 import SettingsForm from "../components/SettingsForm";
 import AppContext, { Context } from "../utils/AppContext";
-import { getIssues } from "../utils/linear";
+import { getIssues, getRelations } from "../utils/linear";
 import { splash } from "./_app.css";
 
 const App = ({ Component, pageProps }: AppProps) => {
@@ -18,9 +18,10 @@ const App = ({ Component, pageProps }: AppProps) => {
       setMissingCredentials(true);
     } else {
       const issues = await getIssues({ linearApiKey, linearTeamId });
+      const relations = await getRelations({ linearApiKey, linearTeamId });
       setContext({
         credentials: { linearApiKey, linearTeamId },
-        data: { issues },
+        data: { issues, relations },
       });
     }
   });

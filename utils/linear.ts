@@ -1,10 +1,17 @@
 import { Credentials } from "./AppContext";
 
 type IssueSummary = {
-  id: string;
-  key: string;
-  title: string;
   estimate: number | null;
+  id: string;
+  identifier: string;
+  title: string;
+  state:
+    | "triage"
+    | "backlog"
+    | "unstarted"
+    | "started"
+    | "completed"
+    | "canceled";
 };
 
 type IssueDetail = {
@@ -29,6 +36,13 @@ type IssueDetail = {
   }>;
 };
 
+type RelationSummary = {
+  id: string;
+  issueIdentifier: string;
+  relatedIssueIdentifier: string;
+  type: "blocks" | "related" | "duplicate";
+};
+
 const getIssues = async (
   credentials: Credentials,
   cursor?: string
@@ -48,18 +62,21 @@ const getIssues = async (
               first: 250
               after: $cursor
               filter: {
-                state: {
-                  type: {
-                    nin: ["completed", "canceled"]
-                  }
-                }
-                cycle: {
+                # state: {
+                #   type: {
+                #     nin: ["completed", "canceled"]
+                #   }
+                # }
+                parent: {
                   null: true
-                  or: [
-                    { startsAt: { gt: "P0D" } }
-                    { endsAt: { lt: "P0D" } }
-                  ]
                 }
+                # cycle: {
+                #   null: true
+                #   or: [
+                #     { startsAt: { gt: "P0D" } }
+                #     { endsAt: { lt: "P0D" } }
+                #   ]
+                # }
               }
             ) {
               pageInfo {
@@ -68,13 +85,13 @@ const getIssues = async (
               }
               edges {
                 node {
-                  id
-                  number
-                  title
-                  parent {
-                    id
-                  }
                   estimate
+                  id
+                  identifier
+                  state {
+                    type
+                  }
+                  title
                 }
               }
             }
@@ -90,14 +107,10 @@ const getIssues = async (
 
   const { data } = await response.json();
 
-  const result = (data?.team?.issues?.edges ?? [])
-    .filter((edge: any) => edge?.node?.parent?.id === undefined)
-    .map((edge: any) => ({
-      id: edge?.node?.id,
-      key: `${data?.team?.key}-${edge?.node?.number}`,
-      title: edge?.node?.title,
-      estimate: edge?.node?.estimate,
-    }));
+  const result = (data?.team?.issues?.edges ?? []).map((edge: any) => ({
+    ...edge?.node,
+    state: edge?.node.state.type,
+  }));
 
   return data?.team?.issues?.pageInfo?.hasNextPage === true
     ? result.concat(
@@ -209,6 +222,64 @@ const getIssue = async (
   };
 };
 
+const getRelations = async (
+  credentials: Credentials,
+  cursor?: string
+): Promise<Array<RelationSummary>> => {
+  const response = await fetch("https://api.linear.app/graphql", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${credentials.linearApiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      query: `
+        query GetRelations($cursor: String) {
+          issueRelations(first: 250, after: $cursor) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
+            edges {
+              node {
+                id
+                type
+                issue {
+                  identifier
+                }
+                relatedIssue {
+                  identifier
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        cursor,
+      },
+    }),
+  });
+
+  const { data } = await response.json();
+
+  const result = (data?.issueRelations?.edges ?? []).map((edge: any) => ({
+    id: edge?.node?.id,
+    issueIdentifier: edge?.node?.issue?.identifier,
+    relatedIssueIdentifier: edge?.node?.relatedIssue?.identifier,
+    type: edge?.node?.type,
+  }));
+
+  return data?.issueRelations?.pageInfo?.hasNextPage === true
+    ? result.concat(
+        await getRelations(
+          credentials,
+          data?.issueRelations?.pageInfo?.endCursor
+        )
+      )
+    : result;
+};
+
 const updateIssue = async (
   credentials: Credentials,
   id: string,
@@ -242,5 +313,5 @@ const updateIssue = async (
   return Boolean(data?.issueUpdate?.success);
 };
 
-export { getIssues, getIssue, updateIssue };
-export type { IssueSummary, IssueDetail };
+export { getIssues, getIssue, getRelations, updateIssue };
+export type { IssueSummary, IssueDetail, RelationSummary };

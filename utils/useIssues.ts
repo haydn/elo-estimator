@@ -20,14 +20,18 @@ const useIssues = (
     async (numberOfIssues: number = 4) => {
       setIssueList([]);
 
+      const relevantIssues = issues.filter(
+        (issue) => issue.state === "triage" || issue.state === "backlog"
+      );
+
       const stats = getStats(issues, localStorageKey);
 
-      if (issues.length > 1) {
+      if (relevantIssues.length > 1) {
         const ids: Array<string> = [];
 
         ids.push(
           weightedRandomPick(
-            [...issues.map(({ id }) => id)].sort(
+            [...relevantIssues.map(({ id }) => id)].sort(
               (a, b) => stats[a].comparisons - stats[b].comparisons
             ),
             8
@@ -37,7 +41,7 @@ const useIssues = (
         for (let i = 0; i < numberOfIssues - 1; i++) {
           ids.push(
             weightedRandomPick(
-              [...issues.map(({ id }) => id)]
+              [...relevantIssues.map(({ id }) => id)]
                 .filter((x) => !ids.includes(x))
                 .sort(
                   (a, b) =>

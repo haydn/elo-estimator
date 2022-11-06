@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { IssueSummary } from "./linear";
+import { IssueSummary, RelationSummary } from "./linear";
 
 type Credentials = {
   linearApiKey: string;
@@ -8,6 +8,7 @@ type Credentials = {
 
 type Data = {
   issues: Array<IssueSummary>;
+  relations: Array<RelationSummary>;
 };
 
 type Context = {
@@ -22,6 +23,7 @@ const AppContext = createContext<Context>({
   },
   data: {
     issues: [],
+    relations: [],
   },
 });
 

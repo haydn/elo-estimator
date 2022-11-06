@@ -87,9 +87,9 @@ const Label = ({
     case ComparisonType.Effort:
       return (
         <span>
-          <abbr title={issueA?.title}>{issueA?.key ?? "UNKNOWN"}</abbr> is
-          quicker to resolve than{" "}
-          <abbr title={issueB?.title}>{issueB?.key ?? "UNKNOWN"}</abbr>{" "}
+          <abbr title={issueA?.title}>{issueA?.identifier ?? "UNKNOWN"}</abbr>{" "}
+          is quicker to resolve than{" "}
+          <abbr title={issueB?.title}>{issueB?.identifier ?? "UNKNOWN"}</abbr>{" "}
           <button
             onClick={() => {
               removeEffortComparison(comparison.id);
@@ -102,9 +102,9 @@ const Label = ({
     case ComparisonType.Value:
       return (
         <span>
-          <abbr title={issueA?.title}>{issueA?.key ?? "UNKNOWN"}</abbr> should
-          be resolved before{" "}
-          <abbr title={issueB?.title}>{issueB?.key ?? "UNKNOWN"}</abbr>{" "}
+          <abbr title={issueA?.title}>{issueA?.identifier ?? "UNKNOWN"}</abbr>{" "}
+          should be resolved before{" "}
+          <abbr title={issueB?.title}>{issueB?.identifier ?? "UNKNOWN"}</abbr>{" "}
           <button
             onClick={() => {
               removeValueComparison(comparison.id);

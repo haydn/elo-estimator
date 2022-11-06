@@ -4,6 +4,7 @@ import { IssueDetail } from "../utils/linear";
 import useIssues from "../utils/useIssues";
 import IssueCard from "./IssueCard";
 import { buttons, footer, header, main, submit } from "./IssueComparison.css";
+import RelationshipGraph from "./RelationshipGraph";
 
 type Props = {
   context: Context;
@@ -39,7 +40,9 @@ const IssueComparison = ({
       </div>
       <div className={main}>
         {issueList.map((issue) => (
-          <IssueCard key={issue.id} issue={issue} />
+          <div key={issue.id}>
+            <IssueCard context={context} issue={issue} />
+          </div>
         ))}
       </div>
       <div className={footer}>
