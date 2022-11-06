@@ -8,6 +8,7 @@ import {
   SimulationLinkDatum,
 } from "d3-force";
 import { Graph } from "@visx/network";
+import { Link } from "@visx/network/lib/types";
 
 type Props = {
   width: number;
@@ -59,7 +60,7 @@ const NetworkGraph = ({
         </marker>
       </defs>
       <rect width={width} height={height} fill={"#fff"} />
-      <Graph
+      <Graph<any, any>
         graph={d3Graph}
         linkComponent={({ link }) => {
           const dx = link.target.x - link.source.x;
