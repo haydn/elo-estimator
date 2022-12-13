@@ -21,7 +21,10 @@ const useIssues = (
       setIssueList([]);
 
       const relevantIssues = issues.filter(
-        (issue) => issue.state === "triage" || issue.state === "backlog"
+        (issue) =>
+          issue.state === "triage" ||
+          issue.state === "backlog" ||
+          issue.state === "unstarted"
       );
 
       const stats = getStats(issues, localStorageKey);

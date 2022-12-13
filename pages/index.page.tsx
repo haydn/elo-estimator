@@ -60,7 +60,10 @@ const IndexPage: NextPage = () => {
         <tbody>
           {data.issues
             .filter(
-              (issue) => issue.state === "triage" || issue.state === "backlog"
+              (issue) =>
+                issue.state === "triage" ||
+                issue.state === "backlog" ||
+                issue.state === "unstarted"
             )
             .map(({ id }) => id)
             .sort((a, b) => stats[b].priority - stats[a].priority)
