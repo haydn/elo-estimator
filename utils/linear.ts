@@ -12,6 +12,7 @@ type IssueSummary = {
     | "started"
     | "completed"
     | "canceled";
+  projectName: string | undefined;
 };
 
 type IssueDetail = {
@@ -92,6 +93,9 @@ const getIssues = async (
                     type
                   }
                   title
+                  project {
+                    name
+                  }
                 }
               }
             }
@@ -110,6 +114,7 @@ const getIssues = async (
   const result = (data?.team?.issues?.edges ?? []).map((edge: any) => ({
     ...edge?.node,
     state: edge?.node.state.type,
+    projectName: edge?.node.project?.name,
   }));
 
   return data?.team?.issues?.pageInfo?.hasNextPage === true
