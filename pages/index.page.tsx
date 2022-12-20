@@ -29,6 +29,7 @@ const IndexPage: NextPage = () => {
           <tr>
             <th>Key</th>
             <th>Project</th>
+            <th>Cycle</th>
             <th>Title</th>
             <th>Rank</th>
             <th>
@@ -80,6 +81,7 @@ const IndexPage: NextPage = () => {
                 <tr key={issue.id}>
                   <td>{issue.identifier}</td>
                   <td>{issue.projectName}</td>
+                  <td>{issue.cycleNumber}</td>
                   <td>{issue.title}</td>
                   <td>{stats[id].priority.toFixed(2)}</td>
                   <td>

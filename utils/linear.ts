@@ -13,6 +13,7 @@ type IssueSummary = {
     | "completed"
     | "canceled";
   projectName: string | undefined;
+  cycleNumber: number | undefined;
 };
 
 type IssueDetail = {
@@ -96,6 +97,9 @@ const getIssues = async (
                   project {
                     name
                   }
+                  cycle {
+                    number
+                  }
                 }
               }
             }
@@ -115,6 +119,7 @@ const getIssues = async (
     ...edge?.node,
     state: edge?.node.state.type,
     projectName: edge?.node.project?.name,
+    cycleNumber: edge?.node.cycle?.number,
   }));
 
   return data?.team?.issues?.pageInfo?.hasNextPage === true
