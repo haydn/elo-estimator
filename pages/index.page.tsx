@@ -3,6 +3,7 @@ import { useContext } from "react";
 import ComparisonValue from "../components/ComparisonValue";
 import Layout from "../components/Layout";
 import OneTimeButton from "../components/OneTimeButton";
+import RelationshipGraph from "../components/RelationshipGraph";
 import AppContext from "../utils/AppContext";
 import getCombinedStats from "../utils/getCombinedStats";
 import { updateIssue } from "../utils/linear";
@@ -52,6 +53,7 @@ const IndexPage: NextPage = () => {
               <br />
               Rating
             </th>
+            <th>Dependencies</th>
             <th>
               Linear
               <br />
@@ -79,7 +81,11 @@ const IndexPage: NextPage = () => {
               );
               return issue ? (
                 <tr key={issue.id}>
-                  <td>{issue.identifier}</td>
+                  <td>
+                    <span style={{ whiteSpace: "nowrap" }}>
+                      {issue.identifier}
+                    </span>
+                  </td>
                   <td>{issue.projectName}</td>
                   <td>{issue.cycleNumber}</td>
                   <td>{issue.title}</td>
@@ -96,6 +102,12 @@ const IndexPage: NextPage = () => {
                   </td>
                   <td>{stats[id].effort.scaled.toFixed(2)}</td>
                   <td>{stats[id].value.scaled.toFixed(2)}</td>
+                  <td>
+                    <RelationshipGraph
+                      data={data}
+                      issueIdentifier={issue.identifier}
+                    />
+                  </td>
                   <td>
                     {stats[id].effort.comparisons >= 4
                       ? recommendedEstimate

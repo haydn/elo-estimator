@@ -1,5 +1,5 @@
 import { ParentSize } from "@visx/responsive";
-import { addEdge, create, Graph, isCyclic } from "graph-fns";
+import { addEdge, create, isCyclic } from "graph-fns";
 import { useEffect, useState } from "react";
 import NetworkGraph from "../components/NetworkGraph";
 import { Data } from "../utils/AppContext";
@@ -69,7 +69,7 @@ const RelationshipGraph = ({
   const descendants = getDescendants(blockingRelations, issueIdentifier);
 
   if (ancestors.length === 0 && descendants.length === 0) {
-    return <p>No dependencies or dependants.</p>;
+    return <p>-</p>;
   }
 
   const all = [...ancestors, issueIdentifier, ...descendants];
@@ -107,10 +107,14 @@ const RelationshipGraph = ({
                   height={height}
                   graph={graph}
                   forceStrength={forceStrength}
-                  label={(identifier) =>
-                    data.issues.find((issue) => issue.identifier === identifier)
-                      ?.title ?? identifier
-                  }
+                  label={(identifier) => {
+                    const issue = data.issues.find(
+                      (issue) => issue.identifier === identifier
+                    );
+                    return issue?.title
+                      ? `[${identifier}] ${issue?.title}`
+                      : identifier;
+                  }}
                   color={(identifier) => {
                     const issue = data.issues.find(
                       (issue) => issue.identifier === identifier
@@ -123,6 +127,14 @@ const RelationshipGraph = ({
                       : ancestors.includes(identifier)
                       ? "#900"
                       : "#090";
+                  }}
+                  textDecoration={(identifier) => {
+                    const issue = data.issues.find(
+                      (issue) => issue.identifier === identifier
+                    );
+                    return issue?.state === "canceled"
+                      ? "line-through"
+                      : "none";
                   }}
                 />
               </div>

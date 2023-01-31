@@ -18,6 +18,7 @@ type Props = {
   undirected?: boolean;
   label?: (id: string) => string;
   color?: (id: string) => string;
+  textDecoration?: (id: string) => string;
 };
 
 const NetworkGraph = ({
@@ -28,6 +29,7 @@ const NetworkGraph = ({
   undirected = false,
   label = (id) => id,
   color = () => "#000",
+  textDecoration = () => "none",
 }: Props) => {
   const d3Graph = toD3(graph);
 
@@ -90,6 +92,7 @@ const NetworkGraph = ({
             textAnchor="middle"
             dy={6}
             fontFamily="sans-serif"
+            textDecoration={textDecoration(node.id)}
           >
             {label(node.id)}
           </text>
