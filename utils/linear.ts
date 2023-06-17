@@ -12,7 +12,9 @@ type IssueSummary = {
     | "started"
     | "completed"
     | "canceled";
+  projectId: string | undefined;
   projectName: string | undefined;
+  projectIcon: string | undefined;
   cycleNumber: number | undefined;
 };
 
@@ -21,7 +23,9 @@ type IssueDetail = {
   identifier: string;
   title: string;
   description: string;
+  projectId: string | undefined;
   projectName: string | undefined;
+  projectIcon: string | undefined;
   labels: Array<string>;
   parentIdentifier: string | undefined;
   parentTitle: string | undefined;
@@ -95,7 +99,9 @@ const getIssues = async (
                   }
                   title
                   project {
+                    id
                     name
+                    icon
                   }
                   cycle {
                     number
@@ -118,7 +124,9 @@ const getIssues = async (
   const result = (data?.team?.issues?.edges ?? []).map((edge: any) => ({
     ...edge?.node,
     state: edge?.node.state.type,
+    projectId: edge?.node.project?.id,
     projectName: edge?.node.project?.name,
+    projectIcon: edge?.node.project?.icon,
     cycleNumber: edge?.node.cycle?.number,
   }));
 
@@ -148,7 +156,9 @@ const getIssue = async (
             title
             description
             project {
+              id
               name
+              icon
             }
             labels {
               edges {
@@ -203,7 +213,9 @@ const getIssue = async (
     identifier: data.issue.identifier,
     title: data.issue.title,
     description: data.issue.description,
+    projectId: data.issue.project?.id,
     projectName: data.issue.project?.name,
+    projectIcon: data.issue.project?.icon,
     labels: data.issue.labels.edges.map((edge: any) => edge.node.name),
     parentIdentifier: data.issue.parent?.identifier,
     parentTitle: data.issue.parent?.title,

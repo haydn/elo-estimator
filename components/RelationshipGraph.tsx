@@ -132,7 +132,8 @@ const RelationshipGraph = ({
                     const issue = data.issues.find(
                       (issue) => issue.identifier === identifier
                     );
-                    return issue?.state === "canceled"
+                    return issue?.state === "completed" ||
+                      issue?.state === "canceled"
                       ? "line-through"
                       : "none";
                   }}

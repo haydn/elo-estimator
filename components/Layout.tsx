@@ -12,6 +12,7 @@ const Layout = ({ children }: Props) => (
       <Link href="/">Issues</Link>
       <Link href="/effort">Effort</Link>
       <Link href="/value">Value</Link>
+      <Link href="/projects">Projects</Link>
       <Link href="/settings">Settings</Link>
     </nav>
     <div className={content}>{children}</div>
