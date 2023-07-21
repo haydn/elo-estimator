@@ -1,9 +1,7 @@
-import { calculateStats, EloTournament } from "./elo";
+import { calculateStats, Comparison, EloTournament } from "./elo";
 import { IssueSummary } from "./linear";
 import { scaleLinear } from "@visx/scale";
 
-const EFFORT_LOCAL_STORAGE_KEY = "effort_comparisons";
-const VALUE_LOCAL_STORAGE_KEY = "value_comparisons";
 const ELO_CONFIG = {
   initialRating: 1000,
   denominator: 400,
@@ -11,15 +9,11 @@ const ELO_CONFIG = {
   kFactors: [80, 40, 20],
 };
 
-const getCombinedStats = (issues: Array<IssueSummary>) => {
-  const effortComparisons: EloTournament["comparisons"] = JSON.parse(
-    window.localStorage.getItem(EFFORT_LOCAL_STORAGE_KEY) ?? "[]"
-  );
-
-  const valueComparisons: EloTournament["comparisons"] = JSON.parse(
-    window.localStorage.getItem(VALUE_LOCAL_STORAGE_KEY) ?? "[]"
-  );
-
+const getCombinedStats = (
+  issues: Array<IssueSummary>,
+  effortComparisons: Array<Comparison>,
+  valueComparisons: Array<Comparison>
+) => {
   const entities = new Set(
     issues
       .map(({ id }) => id)

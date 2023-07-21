@@ -1,10 +1,8 @@
-import { IssueDetail } from "../utils/linear";
 import { marked } from "marked";
 import React from "react";
-import theme from "../utils/theme.css";
+import { Context, IssueDetail } from "../utils/linear";
 import { container } from "./IssueCard.css";
 import RelationshipGraph from "./RelationshipGraph";
-import { Context } from "../utils/AppContext";
 
 type Props = { context: Context; issue: IssueDetail };
 
@@ -33,7 +31,7 @@ const IssueCard = ({ context, issue }: Props) => (
         </ul>
       </>
     ) : null}
-    <RelationshipGraph data={context.data} issueIdentifier={issue.identifier} />
+    <RelationshipGraph context={context} issueIdentifier={issue.identifier} />
     {issue.comments.length > 0 ? (
       <>
         <hr />

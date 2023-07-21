@@ -1,17 +1,36 @@
 import type { NextPage } from "next";
-import { useContext } from "react";
 import ComparisonValue from "../components/ComparisonValue";
 import Layout from "../components/Layout";
 import OneTimeButton from "../components/OneTimeButton";
 import RelationshipGraph from "../components/RelationshipGraph";
-import AppContext from "../utils/AppContext";
 import getCombinedStats from "../utils/getCombinedStats";
-import { updateIssue } from "../utils/linear";
+import { Context } from "../utils/linear";
 import ratingToEstimate from "../utils/ratingToEstimate";
 
-const IndexPage: NextPage = () => {
-  const { credentials, data } = useContext(AppContext);
-  const stats = getCombinedStats(data.issues);
+type Props = {
+  context: Context;
+};
+
+const IndexPage: NextPage<Props> = ({ context }) => {
+  const credentials = context;
+  const data = context;
+  const updateIssue = context.updateIssue;
+
+  const stats = getCombinedStats(
+    data.issueSummaries,
+    data.effortComparisons.map((x) => ({
+      id: x.id,
+      entities: [x.issueAId, x.issueBId],
+      result: x.result,
+      date: x.id,
+    })),
+    data.valueComparisons.map((x) => ({
+      id: x.id,
+      entities: [x.issueAId, x.issueBId],
+      result: x.result,
+      date: x.id,
+    }))
+  );
 
   const minRating = Object.keys(stats).reduce(
     (current, id) => Math.min(stats[id].effort.rating, current),
@@ -62,7 +81,7 @@ const IndexPage: NextPage = () => {
           </tr>
         </thead>
         <tbody>
-          {data.issues
+          {data.issueSummaries
             .filter(
               (issue) =>
                 issue.state === "triage" ||
@@ -72,7 +91,7 @@ const IndexPage: NextPage = () => {
             .map(({ id }) => id)
             .sort((a, b) => stats[b].priority - stats[a].priority)
             .map((id) => {
-              const issue = data.issues.find((i) => i.id === id);
+              const issue = data.issueSummaries.find((i) => i.id === id);
               const recommendedEstimate = ratingToEstimate(
                 stats[id].effort.rating,
                 minRating,
@@ -104,7 +123,7 @@ const IndexPage: NextPage = () => {
                   <td>{stats[id].value.scaled.toFixed(2)}</td>
                   <td>
                     <RelationshipGraph
-                      data={data}
+                      context={context}
                       issueIdentifier={issue.identifier}
                     />
                   </td>
@@ -117,7 +136,7 @@ const IndexPage: NextPage = () => {
                       <OneTimeButton
                         onClick={async () => {
                           const success = await updateIssue(
-                            credentials,
+                            credentials.linearApiKey,
                             issue.id,
                             {
                               estimate: recommendedEstimate,

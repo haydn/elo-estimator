@@ -1,12 +1,12 @@
 import { ParentSize } from "@visx/responsive";
-import { addEdge, addVertex, create, isCyclic } from "graph-fns";
+import { addEdge, addVertex, create } from "graph-fns";
+import emoji from "node-emoji";
 import { useEffect, useState } from "react";
 import NetworkGraph from "../components/NetworkGraph";
-import { Data } from "../utils/AppContext";
+import { Context } from "../utils/linear";
 import { RelationSummary } from "../utils/linear";
 import Layer from "./Layer";
 import { card } from "./ProjectRelationshipGraph.css";
-import emoji from "node-emoji";
 
 type Item =
   | { type: "project"; id: string; label: string }
@@ -43,10 +43,10 @@ const getDescendants = (
 };
 
 const ProjectRelationshipGraph = ({
-  data,
+  context,
   projectId,
 }: {
-  data: Data;
+  context: Context;
   projectId: string;
 }) => {
   const [showing, setShowing] = useState(false);
@@ -66,7 +66,7 @@ const ProjectRelationshipGraph = ({
     };
   });
 
-  const projectIssueIdentifiers = data.issues
+  const projectIssueIdentifiers = context.issueSummaries
     .filter(
       (issue) =>
         issue.state === "triage" ||
@@ -76,7 +76,7 @@ const ProjectRelationshipGraph = ({
     .filter((issue) => issue.projectId === projectId)
     .map((issue) => issue.identifier);
 
-  const blockingRelations = data.relations.filter(
+  const blockingRelations = context.relations.filter(
     (relation) => relation.type === "blocks"
   );
 
@@ -93,7 +93,9 @@ const ProjectRelationshipGraph = ({
   const ancestorItems: Array<Item> = [];
 
   for (let ancestor of ancestors) {
-    const issue = data.issues.find((issue) => issue.identifier === ancestor);
+    const issue = context.issueSummaries.find(
+      (issue) => issue.identifier === ancestor
+    );
     if (!issue) continue;
     if (issue.projectId !== undefined && issue.projectName !== undefined) {
       ancestorItems.push({
@@ -117,7 +119,9 @@ const ProjectRelationshipGraph = ({
   const descendantItems: Array<Item> = [];
 
   for (let descendant of descendants) {
-    const issue = data.issues.find((issue) => issue.identifier === descendant);
+    const issue = context.issueSummaries.find(
+      (issue) => issue.identifier === descendant
+    );
     if (!issue) continue;
     if (issue.projectId !== undefined && issue.projectName !== undefined) {
       descendantItems.push({
@@ -152,10 +156,10 @@ const ProjectRelationshipGraph = ({
       continue;
     }
 
-    const issue = data.issues.find(
+    const issue = context.issueSummaries.find(
       (issue) => issue.identifier === relation.issueIdentifier
     );
-    const relatedIssue = data.issues.find(
+    const relatedIssue = context.issueSummaries.find(
       (issue) => issue.identifier === relation.relatedIssueIdentifier
     );
 
@@ -253,7 +257,7 @@ const ProjectRelationshipGraph = ({
                       : "#090";
                   }}
                   // label={(identifier) => {
-                  //   const issue = data.issues.find(
+                  //   const issue = context.issueSummaries.find(
                   //     (issue) => issue.identifier === identifier
                   //   );
                   //   return issue?.title
@@ -261,7 +265,7 @@ const ProjectRelationshipGraph = ({
                   //     : identifier;
                   // }}
                   // color={(identifier) => {
-                  //   const issue = data.issues.find(
+                  //   const issue = context.issueSummaries.find(
                   //     (issue) => issue.identifier === identifier
                   //   );
                   //   return issue?.state === "completed" ||
@@ -274,7 +278,7 @@ const ProjectRelationshipGraph = ({
                   //     : "#090";
                   // }}
                   // textDecoration={(identifier) => {
-                  //   const issue = data.issues.find(
+                  //   const issue = context.issueSummaries.find(
                   //     (issue) => issue.identifier === identifier
                   //   );
                   //   return issue?.state === "completed" ||

@@ -2,10 +2,10 @@ import { ParentSize } from "@visx/responsive";
 import { addEdge, create, isCyclic } from "graph-fns";
 import { useEffect, useState } from "react";
 import NetworkGraph from "../components/NetworkGraph";
-import { Data } from "../utils/AppContext";
 import { RelationSummary } from "../utils/linear";
 import Layer from "./Layer";
 import { card } from "./RelationshipGraph.css";
+import { Context } from "../utils/linear";
 
 const getAncestors = (
   relations: Array<RelationSummary>,
@@ -38,10 +38,10 @@ const getDescendants = (
 };
 
 const RelationshipGraph = ({
-  data,
+  context,
   issueIdentifier,
 }: {
-  data: Data;
+  context: Context;
   issueIdentifier: string;
 }) => {
   const [showing, setShowing] = useState(false);
@@ -61,7 +61,7 @@ const RelationshipGraph = ({
     };
   });
 
-  const blockingRelations = data.relations.filter(
+  const blockingRelations = context.relations.filter(
     (relation) => relation.type === "blocks"
   );
 
@@ -108,7 +108,7 @@ const RelationshipGraph = ({
                   graph={graph}
                   forceStrength={forceStrength}
                   label={(identifier) => {
-                    const issue = data.issues.find(
+                    const issue = context.issueSummaries.find(
                       (issue) => issue.identifier === identifier
                     );
                     return issue?.title
@@ -116,7 +116,7 @@ const RelationshipGraph = ({
                       : identifier;
                   }}
                   color={(identifier) => {
-                    const issue = data.issues.find(
+                    const issue = context.issueSummaries.find(
                       (issue) => issue.identifier === identifier
                     );
                     return issue?.state === "completed" ||
@@ -129,7 +129,7 @@ const RelationshipGraph = ({
                       : "#090";
                   }}
                   textDecoration={(identifier) => {
-                    const issue = data.issues.find(
+                    const issue = context.issueSummaries.find(
                       (issue) => issue.identifier === identifier
                     );
                     return issue?.state === "completed" ||

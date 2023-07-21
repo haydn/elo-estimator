@@ -1,17 +1,16 @@
-import { calculateStats, EloTournament } from "./elo";
+import { calculateStats, Comparison } from "./elo";
 import { IssueSummary } from "./linear";
 
-const getStats = (issues: Array<IssueSummary>, localStorageKey: string) => {
-  const comparisons: EloTournament["comparisons"] = JSON.parse(
-    window.localStorage.getItem(localStorageKey) ?? "[]"
-  );
-
-  return calculateStats({
+const getStats = (
+  issues: Array<IssueSummary>,
+  comparisons: Array<Comparison>
+) =>
+  calculateStats({
     config: {
       initialRating: 1200,
       denominator: 400,
       thresholds: [4, 8],
-      kFactors: [80, 40, 20]
+      kFactors: [80, 40, 20],
     },
     entities: new Set(
       issues
@@ -23,8 +22,7 @@ const getStats = (issues: Array<IssueSummary>, localStorageKey: string) => {
           )
         )
     ),
-    comparisons
+    comparisons,
   });
-};
 
 export default getStats;

@@ -1,14 +1,12 @@
 import { ReactNode, useEffect, useState } from "react";
-import { Context } from "../utils/AppContext";
-import { IssueDetail } from "../utils/linear";
-import useIssues from "../utils/useIssues";
+import { Context } from "../utils/linear";
+import { Comparison, IssueDetail } from "../utils/linear";
 import IssueCard from "./IssueCard";
 import { buttons, footer, header, main, submit } from "./IssueComparison.css";
-import RelationshipGraph from "./RelationshipGraph";
 
 type Props = {
   context: Context;
-  localStorageKey: string;
+  property: "effort" | "value";
   title: ReactNode;
   firstButtonLabel: (issue: IssueDetail) => string;
   successiveButtonLabel: (issue: IssueDetail) => string;
@@ -16,20 +14,20 @@ type Props = {
 
 const IssueComparison = ({
   context,
-  localStorageKey,
+  property,
   title,
   firstButtonLabel,
   successiveButtonLabel,
 }: Props) => {
-  const { issueList, addComparison, loadIssues } = useIssues(
-    context.credentials,
-    context.data.issues,
-    localStorageKey
-  );
+  const {
+    issueDetails: issueList,
+    addComparisons,
+    loadIssueDetails: loadIssues,
+  } = context;
 
   useEffect(() => {
-    loadIssues(5);
-  }, [loadIssues]);
+    loadIssues(property, 5);
+  }, [loadIssues, property]);
 
   const [order, setOrder] = useState<Array<string>>([]);
 
@@ -74,13 +72,21 @@ const IssueComparison = ({
             Reset
           </button>
           <button
-            onClick={() => {
+            onClick={async () => {
+              const comparisons: Array<
+                Pick<Comparison, "issueAId" | "issueBId" | "result">
+              > = [];
               for (let i = 0; i < order.length; i++) {
                 for (let j = i + 1; j < order.length; j++) {
-                  addComparison([order[i], order[j]], 1);
+                  comparisons.push({
+                    issueAId: order[i],
+                    issueBId: order[j],
+                    result: 1,
+                  });
                 }
               }
-              loadIssues(5);
+              await addComparisons(property, comparisons);
+              loadIssues(property, 5);
               setOrder([]);
             }}
             disabled={order.length !== issueList.length}

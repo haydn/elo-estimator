@@ -1,16 +1,19 @@
 import type { NextPage } from "next";
-import { useContext } from "react";
-import Layout from "../components/Layout";
-import AppContext from "../utils/AppContext";
-import ProjectRelationshipGraph from "../components/ProjectRelationshipGraph";
 import emoji from "node-emoji";
+import Layout from "../components/Layout";
+import ProjectRelationshipGraph from "../components/ProjectRelationshipGraph";
+import { Context } from "../utils/linear";
 
-const ValuePage: NextPage = () => {
-  const { data } = useContext(AppContext);
+type Props = {
+  context: Context;
+};
+
+const ProjectsPage: NextPage<Props> = ({ context }) => {
+  const data = context;
 
   const projects: Array<{ id: string; name: string; issues: number }> = [];
 
-  for (let issue of data.issues.filter(
+  for (let issue of data.issueSummaries.filter(
     (issue) =>
       issue.state === "triage" ||
       issue.state === "backlog" ||
@@ -59,7 +62,7 @@ const ValuePage: NextPage = () => {
                   <td>{project.issues}</td>
                   <td>
                     <ProjectRelationshipGraph
-                      data={data}
+                      context={context}
                       projectId={project.id}
                     />
                   </td>
@@ -72,4 +75,4 @@ const ValuePage: NextPage = () => {
   );
 };
 
-export default ValuePage;
+export default ProjectsPage;

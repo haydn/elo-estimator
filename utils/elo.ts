@@ -107,4 +107,4 @@ const calculateStats = (tournament: EloTournament) => {
 };
 
 export { calculateStats };
-export type { EloTournament };
+export type { Comparison, EloTournament };

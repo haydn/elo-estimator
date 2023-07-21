@@ -2,12 +2,11 @@ import compareDesc from "date-fns/compareDesc";
 import formatDistance from "date-fns/formatDistance";
 import parseISO from "date-fns/parseISO";
 import type { NextPage } from "next";
-import { Fragment, useContext } from "react";
+import { Fragment } from "react";
 import Layout from "../components/Layout";
 import SettingsForm from "../components/SettingsForm";
-import AppContext from "../utils/AppContext";
 import { EloTournament } from "../utils/elo";
-import useIssues from "../utils/useIssues";
+import { Context } from "../utils/linear";
 
 const EFFORT_LOCAL_STORAGE_KEY = "effort_comparisons";
 const VALUE_LOCAL_STORAGE_KEY = "value_comparisons";
@@ -17,7 +16,11 @@ enum ComparisonType {
   Value = "Value",
 }
 
-const SettingsPage: NextPage = () => {
+type Props = {
+  context: Context;
+};
+
+const SettingsPage: NextPage<Props> = ({ context }) => {
   const effortComparisons: EloTournament["comparisons"] = JSON.parse(
     window.localStorage.getItem(EFFORT_LOCAL_STORAGE_KEY) ?? "[]"
   );
@@ -47,7 +50,7 @@ const SettingsPage: NextPage = () => {
                 })}
               </dt>
               <dd>
-                <Label comparison={comparison} />
+                <Label comparison={comparison} context={context} />
               </dd>
             </Fragment>
           );
@@ -59,27 +62,27 @@ const SettingsPage: NextPage = () => {
 
 const Label = ({
   comparison,
+  context,
 }: {
   comparison: EloTournament["comparisons"][number] & { type: ComparisonType };
+  context: Context;
 }) => {
-  const context = useContext(AppContext);
+  // const { removeComparison: removeEffortComparison } = useIssues(
+  //   context.credentials,
+  //   context.data.issues,
+  //   EFFORT_LOCAL_STORAGE_KEY
+  // );
+  // const { removeComparison: removeValueComparison } = useIssues(
+  //   context.credentials,
+  //   context.data.issues,
+  //   VALUE_LOCAL_STORAGE_KEY
+  // );
 
-  const { removeComparison: removeEffortComparison } = useIssues(
-    context.credentials,
-    context.data.issues,
-    EFFORT_LOCAL_STORAGE_KEY
-  );
-  const { removeComparison: removeValueComparison } = useIssues(
-    context.credentials,
-    context.data.issues,
-    VALUE_LOCAL_STORAGE_KEY
-  );
-
-  const issueA = context.data.issues.find(
+  const issueA = context.issueSummaries.find(
     ({ id }) => id === comparison.entities[0]
   );
 
-  const issueB = context.data.issues.find(
+  const issueB = context.issueSummaries.find(
     ({ id }) => id === comparison.entities[1]
   );
 
@@ -90,13 +93,13 @@ const Label = ({
           <abbr title={issueA?.title}>{issueA?.identifier ?? "UNKNOWN"}</abbr>{" "}
           is quicker to resolve than{" "}
           <abbr title={issueB?.title}>{issueB?.identifier ?? "UNKNOWN"}</abbr>{" "}
-          <button
+          {/* <button
             onClick={() => {
               removeEffortComparison(comparison.id);
             }}
           >
             Delete
-          </button>
+          </button> */}
         </span>
       );
     case ComparisonType.Value:
@@ -105,13 +108,13 @@ const Label = ({
           <abbr title={issueA?.title}>{issueA?.identifier ?? "UNKNOWN"}</abbr>{" "}
           should be resolved before{" "}
           <abbr title={issueB?.title}>{issueB?.identifier ?? "UNKNOWN"}</abbr>{" "}
-          <button
+          {/* <button
             onClick={() => {
               removeValueComparison(comparison.id);
             }}
           >
             Delete
-          </button>
+          </button> */}
         </span>
       );
   }
