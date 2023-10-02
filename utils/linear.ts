@@ -95,7 +95,7 @@ const getIssues = async (
   const response = await fetch("https://api.linear.app/graphql", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${context.linearApiKey}`,
+      Authorization: context.linearApiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -180,7 +180,7 @@ const getIssue = async (context: Context, id: string): Promise<IssueDetail> => {
   const response = await fetch("https://api.linear.app/graphql", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${context.linearApiKey}`,
+      Authorization: context.linearApiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -287,7 +287,7 @@ const getRelations = async (
   const response = await fetch("https://api.linear.app/graphql", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${context.linearApiKey}`,
+      Authorization: context.linearApiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -343,7 +343,7 @@ const updateIssue = async (
   const response = await fetch("https://api.linear.app/graphql", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${linearApiKey}`,
+      Authorization: linearApiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({

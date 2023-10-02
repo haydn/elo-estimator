@@ -126,7 +126,7 @@ const postComparisons = async (
   const issuesResponse = await fetch("https://api.linear.app/graphql", {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: apiKey,
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
