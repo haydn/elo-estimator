@@ -24,7 +24,7 @@ type Comparison = {
  * @param bRating Current rating of b.
  * @param actualResult 1 = win for a, 0.5 = draw, 0 = win for b.
  * @param denominator Whatever magic number you want. 400 is popular.
- * @param kFactor Maximum possilbe rating change.
+ * @param kFactor Maximum possible rating change.
  */
 const update = (
   aRating: number,

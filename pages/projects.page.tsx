@@ -1,15 +1,11 @@
-import type { NextPage } from "next";
 import emoji from "node-emoji";
+import { useContext } from "react";
 import Layout from "../components/Layout";
 import ProjectRelationshipGraph from "../components/ProjectRelationshipGraph";
-import { Context } from "../utils/linear";
+import CoreContext from "../core/CoreContext";
 
-type Props = {
-  context: Context;
-};
-
-const ProjectsPage: NextPage<Props> = ({ context }) => {
-  const data = context;
+const ProjectsPage = () => {
+  const { state: data, updateIssueEstimate } = useContext(CoreContext);
 
   const projects: Array<{ id: string; name: string; issues: number }> = [];
 
@@ -62,7 +58,7 @@ const ProjectsPage: NextPage<Props> = ({ context }) => {
                   <td>{project.issues}</td>
                   <td>
                     <ProjectRelationshipGraph
-                      context={context}
+                      state={data}
                       projectId={project.id}
                     />
                   </td>

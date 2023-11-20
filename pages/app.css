@@ -1,0 +1,30 @@
+:root {
+  --theme-color-background: #eee;
+  --theme-color-foreground: #000;
+  --theme-color-subtle: #666;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --theme-color-background: #000;
+    --theme-color-foreground: #eee;
+    --theme-color-subtle: #333;
+  }
+}
+
+body {
+  font-family: sans-serif;
+  font-size: 14px;
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+}
+
+th,
+td {
+  padding: 0.1em 0.5em;
+  text-align: left;
+}

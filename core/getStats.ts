@@ -1,5 +1,5 @@
-import { calculateStats, Comparison } from "./elo";
-import { IssueSummary } from "./linear";
+import { calculateStats } from "../utils/elo";
+import { Comparison, IssueSummary } from "./_types";
 
 const getStats = (
   issues: Array<IssueSummary>,
@@ -17,12 +17,20 @@ const getStats = (
         .map(({ id }) => id)
         .concat(
           comparisons.reduce<Array<string>>(
-            (result, comparison) => result.concat(comparison.entities),
+            (result, comparison) =>
+              result.concat([comparison.issueAId, comparison.issueBId]),
             []
           )
         )
     ),
-    comparisons,
+    comparisons: comparisons.map(
+      ({ date, id, issueAId, issueBId, result }) => ({
+        date,
+        id,
+        entities: [issueAId, issueBId],
+        result,
+      })
+    ),
   });
 
 export default getStats;

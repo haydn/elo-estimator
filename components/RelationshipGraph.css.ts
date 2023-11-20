@@ -1,8 +1,7 @@
 import { style } from "@vanilla-extract/css";
-import theme from "../utils/theme.css";
 
 export const card = style({
-  border: `1px solid ${theme.color.background}`,
   borderRadius: 20,
+  boxShadow: "0px 0px 10px rgb(0, 0, 0, 0.5)",
   overflow: "hidden",
 });

@@ -3,10 +3,9 @@ import { addEdge, addVertex, create } from "graph-fns";
 import emoji from "node-emoji";
 import { useEffect, useState } from "react";
 import NetworkGraph from "../components/NetworkGraph";
-import { Context } from "../utils/linear";
-import { RelationSummary } from "../utils/linear";
 import Layer from "./Layer";
 import { card } from "./ProjectRelationshipGraph.css";
+import { State, RelationSummary } from "../core/_types";
 
 type Item =
   | { type: "project"; id: string; label: string }
@@ -43,10 +42,10 @@ const getDescendants = (
 };
 
 const ProjectRelationshipGraph = ({
-  context,
+  state,
   projectId,
 }: {
-  context: Context;
+  state: State;
   projectId: string;
 }) => {
   const [showing, setShowing] = useState(false);
@@ -66,7 +65,7 @@ const ProjectRelationshipGraph = ({
     };
   });
 
-  const projectIssueIdentifiers = context.issueSummaries
+  const projectIssueIdentifiers = state.issueSummaries
     .filter(
       (issue) =>
         issue.state === "triage" ||
@@ -76,9 +75,18 @@ const ProjectRelationshipGraph = ({
     .filter((issue) => issue.projectId === projectId)
     .map((issue) => issue.identifier);
 
-  const blockingRelations = context.relations.filter(
-    (relation) => relation.type === "blocks"
-  );
+  const blockingRelations = state.issueSummaries
+    .flatMap((issue) =>
+      issue.relations.map(
+        (relation): RelationSummary => ({
+          id: relation.id,
+          issueIdentifier: issue.identifier,
+          relatedIssueIdentifier: relation.identifier,
+          type: relation.type,
+        })
+      )
+    )
+    .filter((relation) => relation.type === "blocks");
 
   const ancestors = getAncestors(blockingRelations, projectIssueIdentifiers);
   const descendants = getDescendants(
@@ -93,7 +101,7 @@ const ProjectRelationshipGraph = ({
   const ancestorItems: Array<Item> = [];
 
   for (let ancestor of ancestors) {
-    const issue = context.issueSummaries.find(
+    const issue = state.issueSummaries.find(
       (issue) => issue.identifier === ancestor
     );
     if (!issue) continue;
@@ -119,7 +127,7 @@ const ProjectRelationshipGraph = ({
   const descendantItems: Array<Item> = [];
 
   for (let descendant of descendants) {
-    const issue = context.issueSummaries.find(
+    const issue = state.issueSummaries.find(
       (issue) => issue.identifier === descendant
     );
     if (!issue) continue;
@@ -156,10 +164,10 @@ const ProjectRelationshipGraph = ({
       continue;
     }
 
-    const issue = context.issueSummaries.find(
+    const issue = state.issueSummaries.find(
       (issue) => issue.identifier === relation.issueIdentifier
     );
-    const relatedIssue = context.issueSummaries.find(
+    const relatedIssue = state.issueSummaries.find(
       (issue) => issue.identifier === relation.relatedIssueIdentifier
     );
 

@@ -1,46 +1,37 @@
 import type { NextPage } from "next";
+import { useContext } from "react";
 import ComparisonValue from "../components/ComparisonValue";
 import Layout from "../components/Layout";
-import OneTimeButton from "../components/OneTimeButton";
 import RelationshipGraph from "../components/RelationshipGraph";
-import getCombinedStats from "../utils/getCombinedStats";
-import { Context } from "../utils/linear";
-import ratingToEstimate from "../utils/ratingToEstimate";
+import CoreContext from "../core/CoreContext";
 
-type Props = {
-  context: Context;
-};
+const IndexPage: NextPage = () => {
+  const { state, updateIssueEstimate } = useContext(CoreContext);
 
-const IndexPage: NextPage<Props> = ({ context }) => {
-  const credentials = context;
-  const data = context;
-  const updateIssue = context.updateIssue;
+  const { issueSummaries, scales, stats } = state;
 
-  const stats = getCombinedStats(
-    data.issueSummaries,
-    data.effortComparisons.map((x) => ({
-      id: x.id,
-      entities: [x.issueAId, x.issueBId],
-      result: x.result,
-      date: x.id,
-    })),
-    data.valueComparisons.map((x) => ({
-      id: x.id,
-      entities: [x.issueAId, x.issueBId],
-      result: x.result,
-      date: x.id,
-    }))
-  );
-
-  const minRating = Object.keys(stats).reduce(
-    (current, id) => Math.min(stats[id].effort.rating, current),
+  const minRating = Object.keys(stats.effort).reduce(
+    (current, id) => Math.min(stats.effort[id].rating, current),
     Number.MAX_VALUE
   );
 
-  const maxRating = Object.keys(stats).reduce(
-    (current, id) => Math.max(stats[id].effort.rating, current),
+  const maxRating = Object.keys(stats.effort).reduce(
+    (current, id) => Math.max(stats.effort[id].rating, current),
     Number.MIN_VALUE
   );
+
+  const priority = (id: string) =>
+    scales.value(stats.value[id].rating) -
+    scales.effort(stats.effort[id].rating);
+
+  const recommendedEstimate = (id: string) => {
+    const step = (maxRating - minRating) / [1, 2, 3, 5, 8, 13].length;
+    let index = [1, 2, 3, 5, 8, 13].length - 1;
+    while (index > 0 && stats.effort[id].rating > maxRating - step * index) {
+      index -= 1;
+    }
+    return [1, 2, 3, 5, 8, 13][index];
+  };
 
   return (
     <Layout>
@@ -81,7 +72,7 @@ const IndexPage: NextPage<Props> = ({ context }) => {
           </tr>
         </thead>
         <tbody>
-          {data.issueSummaries
+          {issueSummaries
             .filter(
               (issue) =>
                 issue.state === "triage" ||
@@ -89,15 +80,9 @@ const IndexPage: NextPage<Props> = ({ context }) => {
                 issue.state === "unstarted"
             )
             .map(({ id }) => id)
-            .sort((a, b) => stats[b].priority - stats[a].priority)
+            .sort((a, b) => priority(b) - priority(a))
             .map((id) => {
-              const issue = data.issueSummaries.find((i) => i.id === id);
-              const recommendedEstimate = ratingToEstimate(
-                stats[id].effort.rating,
-                minRating,
-                maxRating,
-                [1, 2, 3, 5, 8, 13]
-              );
+              const issue = issueSummaries.find((i) => i.id === id);
               return issue ? (
                 <tr key={issue.id}>
                   <td>
@@ -106,51 +91,44 @@ const IndexPage: NextPage<Props> = ({ context }) => {
                     </span>
                   </td>
                   <td>{issue.projectName}</td>
-                  <td>{issue.cycleNumber}</td>
+                  <td>{issue.cycle}</td>
                   <td>{issue.title}</td>
-                  <td>{stats[id].priority.toFixed(2)}</td>
+                  <td>{priority(id).toFixed(2)}</td>
                   <td>
                     <ComparisonValue>
-                      {stats[id].effort.comparisons}
+                      {stats.effort[id].comparisons}
                     </ComparisonValue>
                   </td>
                   <td>
                     <ComparisonValue>
-                      {stats[id].value.comparisons}
+                      {stats.value[id].comparisons}
                     </ComparisonValue>
                   </td>
-                  <td>{stats[id].effort.scaled.toFixed(2)}</td>
-                  <td>{stats[id].value.scaled.toFixed(2)}</td>
+                  <td>{scales.effort(stats.value[id].rating).toFixed(2)}</td>
+                  <td>{scales.value(stats.value[id].rating).toFixed(2)}</td>
                   <td>
                     <RelationshipGraph
-                      context={context}
+                      context={state}
                       issueIdentifier={issue.identifier}
                     />
+                    {null}
                   </td>
                   <td>
-                    {stats[id].effort.comparisons >= 4
-                      ? recommendedEstimate
+                    {stats.effort[id].comparisons >= 4
+                      ? recommendedEstimate(id)
                       : "-"}{" "}
-                    {stats[id].effort.comparisons >= 4 &&
-                    issue.estimate !== recommendedEstimate ? (
-                      <OneTimeButton
+                    {stats.effort[id].comparisons >= 4 &&
+                    issue.estimate !== recommendedEstimate(id) ? (
+                      <button
                         onClick={async () => {
-                          const success = await updateIssue(
-                            credentials.linearApiKey,
+                          updateIssueEstimate(
                             issue.id,
-                            {
-                              estimate: recommendedEstimate,
-                            }
+                            recommendedEstimate(id)
                           );
-                          if (!success) {
-                            window.alert(
-                              `Problem updating ${issue.identifier}.`
-                            );
-                          }
                         }}
                       >
                         Update ({issue.estimate ?? "-"})
-                      </OneTimeButton>
+                      </button>
                     ) : null}
                   </td>
                 </tr>

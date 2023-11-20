@@ -1,0 +1,6 @@
+.container {
+  border-radius: 20px;
+  border: 1px solid var(--theme-color-background);
+  overflow: hidden;
+  padding: 20px;
+}

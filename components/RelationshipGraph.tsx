@@ -2,10 +2,9 @@ import { ParentSize } from "@visx/responsive";
 import { addEdge, create, isCyclic } from "graph-fns";
 import { useEffect, useState } from "react";
 import NetworkGraph from "../components/NetworkGraph";
-import { RelationSummary } from "../utils/linear";
 import Layer from "./Layer";
 import { card } from "./RelationshipGraph.css";
-import { Context } from "../utils/linear";
+import { State, RelationSummary } from "../core/_types";
 
 const getAncestors = (
   relations: Array<RelationSummary>,
@@ -41,7 +40,7 @@ const RelationshipGraph = ({
   context,
   issueIdentifier,
 }: {
-  context: Context;
+  context: State;
   issueIdentifier: string;
 }) => {
   const [showing, setShowing] = useState(false);
@@ -61,9 +60,18 @@ const RelationshipGraph = ({
     };
   });
 
-  const blockingRelations = context.relations.filter(
-    (relation) => relation.type === "blocks"
-  );
+  const blockingRelations = context.issueSummaries
+    .flatMap((issue) =>
+      issue.relations.map(
+        (relation): RelationSummary => ({
+          id: relation.id,
+          issueIdentifier: issue.identifier,
+          relatedIssueIdentifier: relation.identifier,
+          type: relation.type,
+        })
+      )
+    )
+    .filter((relation) => relation.type === "blocks");
 
   const ancestors = getAncestors(blockingRelations, issueIdentifier);
   const descendants = getDescendants(blockingRelations, issueIdentifier);

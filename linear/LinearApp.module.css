@@ -1,0 +1,15 @@
+.form {
+  display: grid;
+  gap: 10px;
+  max-width: 80em;
+}
+
+.field {
+  display: grid;
+  gap: 5px;
+}
+
+.footer {
+  display: grid;
+  justify-content: flex-end;
+}
