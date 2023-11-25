@@ -33,8 +33,45 @@ const IndexPage: NextPage = () => {
     return [1, 2, 3, 5, 8, 13][index];
   };
 
+  const issuesWithOutOfDateEstimates = issueSummaries
+    .filter(
+      (issue) =>
+        issue.state === "triage" ||
+        issue.state === "backlog" ||
+        issue.state === "unstarted"
+    )
+    .filter(
+      (issue) =>
+        stats.effort[issue.id].comparisons >= 4 &&
+        issue.estimate !== recommendedEstimate(issue.id)
+    );
+
   return (
     <Layout>
+      <div
+        style={{
+          alignItems: "center",
+          display: "grid",
+          gap: 10,
+          gridAutoFlow: "column",
+          justifyContent: "end",
+        }}
+      >
+        <span>{issuesWithOutOfDateEstimates.length} issue(s) out-of-date</span>
+        <button
+          disabled={issuesWithOutOfDateEstimates.length === 0}
+          onClick={async () => {
+            for (const issue of issuesWithOutOfDateEstimates) {
+              await updateIssueEstimate(
+                issue.id,
+                recommendedEstimate(issue.id)
+              );
+            }
+          }}
+        >
+          Update All
+        </button>
+      </div>
       <table>
         <thead>
           <tr>
