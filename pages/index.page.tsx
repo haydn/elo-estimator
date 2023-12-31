@@ -33,31 +33,38 @@ const IndexPage: NextPage = () => {
     return [1, 2, 3, 5, 8, 13][index];
   };
 
-  const issuesWithOutOfDateEstimates = issueSummaries
-    .filter(
-      (issue) =>
-        issue.state === "triage" ||
-        issue.state === "backlog" ||
-        issue.state === "unstarted"
-    )
-    .filter(
-      (issue) =>
-        stats.effort[issue.id].comparisons >= 4 &&
-        issue.estimate !== recommendedEstimate(issue.id)
-    );
+  const issuesToList = issueSummaries.filter(
+    (issue) =>
+      issue.state === "triage" ||
+      issue.state === "backlog" ||
+      issue.state === "unstarted"
+  );
+
+  const issuesWithOutOfDateEstimates = issuesToList.filter(
+    (issue) =>
+      stats.effort[issue.id].comparisons >= 4 &&
+      issue.estimate !== recommendedEstimate(issue.id)
+  );
 
   return (
     <Layout>
       <div
         style={{
           alignItems: "center",
+          borderBottom: "1px solid #eee",
           display: "grid",
           gap: 10,
           gridAutoFlow: "column",
           justifyContent: "end",
+          paddingBottom: 3,
         }}
       >
-        <span>{issuesWithOutOfDateEstimates.length} issue(s) out-of-date</span>
+        <span>
+          <b>Total</b>: {issuesToList.length}
+        </span>
+        <span>
+          <b>Pending</b>: {issuesWithOutOfDateEstimates.length}
+        </span>
         <button
           disabled={issuesWithOutOfDateEstimates.length === 0}
           onClick={async () => {
@@ -69,7 +76,7 @@ const IndexPage: NextPage = () => {
             }
           }}
         >
-          Update All
+          Sync Now
         </button>
       </div>
       <table>
@@ -109,13 +116,7 @@ const IndexPage: NextPage = () => {
           </tr>
         </thead>
         <tbody>
-          {issueSummaries
-            .filter(
-              (issue) =>
-                issue.state === "triage" ||
-                issue.state === "backlog" ||
-                issue.state === "unstarted"
-            )
+          {issuesToList
             .map(({ id }) => id)
             .sort((a, b) => priority(b) - priority(a))
             .map((id) => {
