@@ -1,11 +1,16 @@
 import type { NextPage } from "next";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import ComparisonValue from "../components/ComparisonValue";
 import Layout from "../components/Layout";
 import RelationshipGraph from "../components/RelationshipGraph";
 import CoreContext from "../core/CoreContext";
 
 const IndexPage: NextPage = () => {
+  const [sortColumn, setSortColumn] = useState<{
+    column: "priority" | "effort" | "value";
+    direction: "asc" | "desc";
+  }>({ column: "priority", direction: "desc" });
+
   const { state, updateIssueEstimate } = useContext(CoreContext);
 
   const { issueSummaries, scales, stats } = state;
@@ -82,46 +87,81 @@ const IndexPage: NextPage = () => {
       <table>
         <thead>
           <tr>
-            <th>Key</th>
-            <th>Project</th>
-            <th>Cycle</th>
-            <th>Title</th>
-            <th>Rank</th>
-            <th>
-              Effort
-              <br />
-              Count
-            </th>
-            <th>
-              Value
-              <br />
-              Count
-            </th>
-            <th>
-              Effort
-              <br />
-              Rating
-            </th>
-            <th>
-              Value
-              <br />
-              Rating
-            </th>
-            <th>Dependencies</th>
-            <th>
-              Linear
-              <br />
-              Estimate
-            </th>
+            {(
+              [
+                { key: "key", label: "Key" },
+                { key: "project", label: "Project" },
+                { key: "cycle", label: "Cycle" },
+                { key: "title", label: "Title" },
+                { key: "priority", label: "Priority", sortColumn: "priority" },
+                { key: "effort", label: "Effort", sortColumn: "effort" },
+                { key: "value", label: "Value", sortColumn: "value" },
+                { key: "dependencies", label: "Dependencies" },
+                {
+                  key: "linear-estimate",
+                  label: (
+                    <>
+                      Linear
+                      <br />
+                      Estimate
+                    </>
+                  ),
+                },
+              ] as const
+            ).map((col) => (
+              <th
+                key={col.key}
+                onClick={
+                  "sortColumn" in col
+                    ? () => {
+                        setSortColumn((current) => ({
+                          column: col.sortColumn,
+                          direction:
+                            current.column !== col.sortColumn ||
+                            current.direction === "asc"
+                              ? "desc"
+                              : "asc",
+                        }));
+                      }
+                    : undefined
+                }
+              >
+                {col.label}
+                {"sortColumn" in col ? (
+                  <>
+                    &nbsp;
+                    {sortColumn.column === col.sortColumn
+                      ? sortColumn.direction === "desc"
+                        ? "↓"
+                        : "↑"
+                      : "↕"}
+                  </>
+                ) : null}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {issuesToList
-            .map(({ id }) => id)
-            .sort((a, b) => priority(b) - priority(a))
-            .map((id) => {
-              const issue = issueSummaries.find((i) => i.id === id);
-              return issue ? (
+            .sort((a, b) => {
+              switch (sortColumn.column) {
+                case "priority":
+                  return sortColumn.direction === "desc"
+                    ? priority(b.id) - priority(a.id)
+                    : priority(a.id) - priority(b.id);
+                case "effort":
+                  return sortColumn.direction === "desc"
+                    ? stats.effort[b.id].rating - stats.effort[a.id].rating
+                    : stats.effort[a.id].rating - stats.effort[b.id].rating;
+                case "value":
+                  return sortColumn.direction === "desc"
+                    ? stats.value[b.id].rating - stats.value[a.id].rating
+                    : stats.value[a.id].rating - stats.value[b.id].rating;
+              }
+            })
+            .map((issue) => {
+              const id = issue.id;
+              return (
                 <tr key={issue.id}>
                   <td>
                     <span style={{ whiteSpace: "nowrap" }}>
@@ -133,17 +173,19 @@ const IndexPage: NextPage = () => {
                   <td>{issue.title}</td>
                   <td>{priority(id).toFixed(2)}</td>
                   <td>
+                    {scales.effort(stats.effort[id].rating).toFixed(2)}&nbsp;(
                     <ComparisonValue>
                       {stats.effort[id].comparisons}
                     </ComparisonValue>
+                    )
                   </td>
                   <td>
+                    {scales.value(stats.value[id].rating).toFixed(2)}&nbsp;(
                     <ComparisonValue>
                       {stats.value[id].comparisons}
                     </ComparisonValue>
+                    )
                   </td>
-                  <td>{scales.effort(stats.value[id].rating).toFixed(2)}</td>
-                  <td>{scales.value(stats.value[id].rating).toFixed(2)}</td>
                   <td>
                     <RelationshipGraph
                       context={state}
@@ -170,7 +212,7 @@ const IndexPage: NextPage = () => {
                     ) : null}
                   </td>
                 </tr>
-              ) : null;
+              );
             })}
         </tbody>
       </table>
