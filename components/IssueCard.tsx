@@ -27,11 +27,27 @@ const IssueCard = ({ issue }: Props) => {
         <>
           <hr />
           <ul>
-            {issue.relations.map((relation) => (
-              <li key={relation.id}>
-                {relation.type} — {relation.identifier} — {relation.title}
-              </li>
-            ))}
+            {issue.relations.map((relation) => {
+              const issueSummary = state.issueSummaries.find(
+                ({ identifier }) => identifier === relation.identifier
+              );
+              return (
+                <li
+                  key={relation.id}
+                  style={
+                    issueSummary?.state === "completed" ||
+                    issueSummary?.state === "canceled"
+                      ? {
+                          color: "#999",
+                          textDecoration: "line-through",
+                        }
+                      : undefined
+                  }
+                >
+                  {relation.type} — {relation.identifier} — {relation.title}
+                </li>
+              );
+            })}
           </ul>
         </>
       ) : null}
