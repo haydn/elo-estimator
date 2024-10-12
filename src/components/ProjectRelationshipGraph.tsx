@@ -2,7 +2,7 @@ import { ParentSize } from "@visx/responsive";
 import { addEdge, addVertex, create } from "graph-fns";
 import emoji from "node-emoji";
 import { useEffect, useState } from "react";
-import NetworkGraph from "../components/NetworkGraph";
+import NetworkGraph from "./NetworkGraph";
 import Layer from "./Layer";
 import { card } from "./ProjectRelationshipGraph.css";
 import { State, RelationSummary } from "../core/_types";
