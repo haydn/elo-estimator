@@ -1,6 +1,6 @@
 import { formatISO, fromUnixTime } from "date-fns";
 import { z } from "zod";
-import { Comparison } from "./_types";
+import type { Comparison } from "./_types";
 
 const KV_REST_API_TOKEN = process.env.KV_REST_API_TOKEN;
 const KV_REST_API_URL = process.env.KV_REST_API_URL;

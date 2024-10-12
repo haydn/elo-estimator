@@ -1,10 +1,10 @@
 import styles from "./IssueComparison.module.css";
 
 import { useRouter } from "next/router";
-import { ReactNode, useContext, useState } from "react";
+import { type ReactNode, useContext, useState } from "react";
 import IssueCard from "../components/IssueCard";
 import CoreContext from "./CoreContext";
-import { Comparison } from "./_types";
+import type { Comparison } from "./_types";
 
 type Props = {
   firstButtonLabel: string;

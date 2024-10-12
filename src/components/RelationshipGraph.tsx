@@ -1,7 +1,7 @@
 import { ParentSize } from "@visx/responsive";
 import { addEdge, create, isCyclic } from "graph-fns";
 import { useEffect, useState } from "react";
-import { RelationSummary, State } from "../core/_types";
+import type { RelationSummary, State } from "../core/_types";
 import Layer from "./Layer";
 import NetworkGraph from "./NetworkGraph";
 import styles from "./RelationshipGraph.module.css";

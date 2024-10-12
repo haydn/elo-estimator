@@ -1,5 +1,5 @@
 import { calculateStats } from "../utils/elo";
-import { Comparison, IssueSummary } from "./_types";
+import type { Comparison, IssueSummary } from "./_types";
 
 const getStats = (
   issues: Array<IssueSummary>,

@@ -1,13 +1,13 @@
 import { Graph } from "@visx/network";
 import {
-  SimulationLinkDatum,
-  SimulationNodeDatum,
+  type SimulationLinkDatum,
+  type SimulationNodeDatum,
   forceCenter,
   forceLink,
   forceManyBody,
   forceSimulation,
 } from "d3-force";
-import { Graph as G, toD3 } from "graph-fns";
+import { type Graph as G, toD3 } from "graph-fns";
 
 type Props = {
   width: number;

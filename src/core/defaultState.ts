@@ -1,5 +1,5 @@
 import { scaleLinear } from "@visx/scale";
-import { State } from "./_types";
+import type { State } from "./_types";
 
 const defaultState: State = {
   comparisons: { effort: [] },

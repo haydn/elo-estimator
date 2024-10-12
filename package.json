@@ -27,6 +27,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
+    "@total-typescript/tsconfig": "^1.0.4",
     "@types/d3-force": "^3.0.3",
     "@types/dedent": "^0.7.0",
     "@types/marked": "^4.0.3",

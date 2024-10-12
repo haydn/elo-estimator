@@ -1,7 +1,7 @@
 import gql from "dedent";
-import { ReactNode, useCallback } from "react";
+import { type ReactNode, useCallback } from "react";
 import Core from "../core/Core";
-import {
+import type {
   Comparison,
   IssueDetail,
   IssueSummary,

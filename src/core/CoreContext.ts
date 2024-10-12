@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { Comparison, ComparisonProperty, State } from "./_types";
+import type { Comparison, ComparisonProperty, State } from "./_types";
 import defaultState from "./defaultState";
 
 const CoreContext = createContext<{

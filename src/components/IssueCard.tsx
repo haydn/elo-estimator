@@ -2,7 +2,7 @@ import styles from "./IssueCard.module.css";
 
 import { marked } from "marked";
 import React, { useContext } from "react";
-import { IssueDetail } from "../core/_types";
+import type { IssueDetail } from "../core/_types";
 import RelationshipGraph from "./RelationshipGraph";
 import CoreContext from "../core/CoreContext";
 import ProjectName from "./ProjectName";

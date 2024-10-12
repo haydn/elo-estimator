@@ -1,7 +1,7 @@
 import styles from "./Layout.module.css";
 
 import Link from "next/link";
-import { ReactNode, useContext } from "react";
+import { type ReactNode, useContext } from "react";
 import CoreContext from "../core/CoreContext";
 
 type Props = {

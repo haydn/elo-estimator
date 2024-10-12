@@ -1,8 +1,8 @@
 import { scaleLinear } from "@visx/scale";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useState } from "react";
 import weightedRandomPick from "../utils/weightedRandomPick";
 import CoreContext from "./CoreContext";
-import {
+import type {
   Comparison,
   ComparisonProperty,
   IssueDetail,
@@ -49,10 +49,7 @@ const Core = ({
   useEffect(() => {
     setState(incrementPendingRequest);
 
-    Promise.all([
-      getIssueSummaries(),
-      getComparisons("effort"),
-    ])
+    Promise.all([getIssueSummaries(), getComparisons("effort")])
       .then(([issueSummaries, effortComparisons]) => {
         const stats: Record<ComparisonProperty, ReturnType<typeof getStats>> = {
           effort: getStats(issueSummaries, effortComparisons),
