@@ -2,6 +2,7 @@ import type { NextPage } from "next";
 import { useContext, useState } from "react";
 import ComparisonValue from "../components/ComparisonValue";
 import Layout from "../components/Layout";
+import ProjectName from "../components/ProjectName";
 import RelationshipGraph from "../components/RelationshipGraph";
 import CoreContext from "../core/CoreContext";
 
@@ -160,7 +161,14 @@ const IndexPage: NextPage = () => {
                       {issue.identifier}
                     </span>
                   </td>
-                  <td>{issue.projectName}</td>
+                  <td>
+                    {issue.projectName ? (
+                      <ProjectName
+                        name={issue.projectName}
+                        icon={issue.projectIcon}
+                      />
+                    ) : null}
+                  </td>
                   <td>{issue.cycle}</td>
                   <td>{issue.title}</td>
                   <td>

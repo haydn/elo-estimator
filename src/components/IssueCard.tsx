@@ -5,6 +5,7 @@ import React, { useContext } from "react";
 import { IssueDetail } from "../core/_types";
 import RelationshipGraph from "./RelationshipGraph";
 import CoreContext from "../core/CoreContext";
+import ProjectName from "./ProjectName";
 
 type Props = { issue: IssueDetail };
 
@@ -15,7 +16,12 @@ const IssueCard = ({ issue }: Props) => {
       <small>
         {issue.identifier}
         {issue.labels.length > 0 ? " — " + issue.labels.join(", ") : null}
-        {issue.projectName ? " — " + issue.projectName : null}
+        {issue.projectName ? (
+          <>
+            {" — "}
+            <ProjectName name={issue.projectName} icon={issue.projectIcon} />
+          </>
+        ) : null}
       </small>
       <h2>{issue.title}</h2>
       <div

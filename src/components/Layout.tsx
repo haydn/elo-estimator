@@ -58,7 +58,6 @@ const Layout = ({ children }: Props) => {
             ? ` (${issuesMissingEffortComparisons})`
             : null}
         </span>
-        <Link href="/projects">Projects</Link>
         <Link href="/settings">Settings</Link>
       </nav>
       <div className={content}>
