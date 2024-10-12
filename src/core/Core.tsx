@@ -52,12 +52,10 @@ const Core = ({
     Promise.all([
       getIssueSummaries(),
       getComparisons("effort"),
-      getComparisons("value"),
     ])
-      .then(([issueSummaries, effortComparisons, valueComparisons]) => {
+      .then(([issueSummaries, effortComparisons]) => {
         const stats: Record<ComparisonProperty, ReturnType<typeof getStats>> = {
           effort: getStats(issueSummaries, effortComparisons),
-          value: getStats(issueSummaries, valueComparisons),
         };
 
         setState((current) => ({
@@ -65,7 +63,6 @@ const Core = ({
           issueSummaries,
           comparisons: {
             effort: effortComparisons,
-            value: valueComparisons,
           },
           stats,
           scales: {
@@ -79,17 +76,6 @@ const Core = ({
                 ),
               ],
               range: [0, 1],
-            }),
-            value: scaleLinear({
-              domain: [
-                Math.max(
-                  ...issueSummaries.map(({ id }) => stats.value[id].rating)
-                ),
-                Math.min(
-                  ...issueSummaries.map(({ id }) => stats.value[id].rating)
-                ),
-              ],
-              range: [1, 0],
             }),
           },
         }));
@@ -199,7 +185,6 @@ const Core = ({
             ReturnType<typeof getStats>
           > = {
             effort: getStats(current.issueSummaries, updatedComparisons.effort),
-            value: getStats(current.issueSummaries, updatedComparisons.value),
           };
 
           return {

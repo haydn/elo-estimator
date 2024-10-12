@@ -7,9 +7,9 @@ import CoreContext from "../core/CoreContext";
 
 const IndexPage: NextPage = () => {
   const [sortColumn, setSortColumn] = useState<{
-    column: "priority" | "effort" | "value";
+    column: "key" | "effort";
     direction: "asc" | "desc";
-  }>({ column: "priority", direction: "desc" });
+  }>({ column: "effort", direction: "desc" });
 
   const { state, updateIssueEstimate } = useContext(CoreContext);
 
@@ -24,10 +24,6 @@ const IndexPage: NextPage = () => {
     (current, id) => Math.max(stats.effort[id].rating, current),
     Number.MIN_VALUE
   );
-
-  const priority = (id: string) =>
-    scales.value(stats.value[id].rating) -
-    scales.effort(stats.effort[id].rating);
 
   const recommendedEstimate = (id: string) => {
     const step = (maxRating - minRating) / [1, 2, 3, 5, 8, 13].length;
@@ -89,13 +85,11 @@ const IndexPage: NextPage = () => {
           <tr>
             {(
               [
-                { key: "key", label: "Key" },
+                { key: "key", label: "Key", sortColumn: "key" },
                 { key: "project", label: "Project" },
                 { key: "cycle", label: "Cycle" },
                 { key: "title", label: "Title" },
-                { key: "priority", label: "Priority", sortColumn: "priority" },
                 { key: "effort", label: "Effort", sortColumn: "effort" },
-                { key: "value", label: "Value", sortColumn: "value" },
                 { key: "dependencies", label: "Dependencies" },
                 {
                   key: "linear-estimate",
@@ -145,18 +139,16 @@ const IndexPage: NextPage = () => {
           {issuesToList
             .sort((a, b) => {
               switch (sortColumn.column) {
-                case "priority":
+                case "key":
+                  const aNum = parseInt(a.identifier.replaceAll(/[^\d]/g, ""));
+                  const bNum = parseInt(b.identifier.replaceAll(/[^\d]/g, ""));
                   return sortColumn.direction === "desc"
-                    ? priority(b.id) - priority(a.id)
-                    : priority(a.id) - priority(b.id);
+                    ? aNum - bNum
+                    : bNum - aNum;
                 case "effort":
                   return sortColumn.direction === "desc"
                     ? stats.effort[b.id].rating - stats.effort[a.id].rating
                     : stats.effort[a.id].rating - stats.effort[b.id].rating;
-                case "value":
-                  return sortColumn.direction === "desc"
-                    ? stats.value[b.id].rating - stats.value[a.id].rating
-                    : stats.value[a.id].rating - stats.value[b.id].rating;
               }
             })
             .map((issue) => {
@@ -171,18 +163,10 @@ const IndexPage: NextPage = () => {
                   <td>{issue.projectName}</td>
                   <td>{issue.cycle}</td>
                   <td>{issue.title}</td>
-                  <td>{priority(id).toFixed(2)}</td>
                   <td>
                     {scales.effort(stats.effort[id].rating).toFixed(2)}&nbsp;(
                     <ComparisonValue>
                       {stats.effort[id].comparisons}
-                    </ComparisonValue>
-                    )
-                  </td>
-                  <td>
-                    {scales.value(stats.value[id].rating).toFixed(2)}&nbsp;(
-                    <ComparisonValue>
-                      {stats.value[id].comparisons}
                     </ComparisonValue>
                     )
                   </td>

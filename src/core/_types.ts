@@ -20,7 +20,7 @@ export type Comparison = {
   userId: string;
 };
 
-export type ComparisonProperty = "effort" | "value";
+export type ComparisonProperty = "effort";
 
 export type IssueDetail = IssueSummary & {
   comments: Array<{

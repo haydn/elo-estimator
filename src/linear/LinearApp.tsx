@@ -18,7 +18,7 @@ const LinearApp = ({ children }: Props) => {
   const [teamId, setTeamId] = useLocalStorage("linear_team_id");
 
   const addComparisons = async (
-    property: "effort" | "value",
+    property: "effort",
     comparisons: Array<Pick<Comparison, "issueAId" | "issueBId" | "result">>,
     highWaterMark: string | undefined
   ) => {
@@ -45,7 +45,7 @@ const LinearApp = ({ children }: Props) => {
   };
 
   const getComparisons = useCallback(
-    async (property: "effort" | "value"): Promise<Array<Comparison>> => {
+    async (property: "effort"): Promise<Array<Comparison>> => {
       const response = await fetch(
         `/api/linear/${teamId}/${property}/comparisons`
       );
