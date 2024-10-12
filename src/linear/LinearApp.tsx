@@ -1,3 +1,4 @@
+import gql from "dedent";
 import { ReactNode, useCallback } from "react";
 import Core from "../core/Core";
 import {
@@ -72,7 +73,7 @@ const LinearApp = ({ children }: Props) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          query: `
+          query: gql`
             query IssueDetail($id: String!) {
               issue(id: $id) {
                 id
@@ -203,18 +204,14 @@ const LinearApp = ({ children }: Props) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          query: `
+          query: gql`
             query IssueSummary($id: String!, $cursor: String) {
               team(id: $id) {
                 key
                 issues(
                   first: 100
                   after: $cursor
-                  filter: {
-                    parent: {
-                      null: true
-                    }
-                  }
+                  filter: { parent: { null: true } }
                 ) {
                   pageInfo {
                     hasNextPage
@@ -325,7 +322,7 @@ const LinearApp = ({ children }: Props) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          query: `
+          query: gql`
             mutation ($id: String!, $input: IssueUpdateInput!) {
               issueUpdate(id: $id, input: $input) {
                 success

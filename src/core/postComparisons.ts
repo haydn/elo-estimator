@@ -1,8 +1,9 @@
 import { formatISO, fromUnixTime } from "date-fns";
+import gql from "dedent";
+import { NextApiRequest } from "next";
+import { z } from "zod";
 import { postBodySchema, postLinearResponseSchema } from "../linear/_schema";
 import { Comparison } from "./_types";
-import { z } from "zod";
-import { NextApiRequest } from "next";
 
 const KV_REST_API_TOKEN = process.env.KV_REST_API_TOKEN;
 const KV_REST_API_URL = process.env.KV_REST_API_URL;
@@ -41,7 +42,7 @@ const postComparisons = async (
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      query: `
+      query: gql`
         query Issues($issueIds: [ID!]!) {
           issues(filter: { id: { in: $issueIds } }) {
             nodes {
