@@ -1,0 +1,17 @@
+.container {
+  position: relative;
+}
+
+.nav {
+  position: fixed;
+  row-gap: 10px;
+  display: grid;
+  grid-auto-flow: row;
+  padding: 10px;
+}
+
+.content {
+  position: relative;
+  margin-left: 10rem;
+  padding: 10px;
+}

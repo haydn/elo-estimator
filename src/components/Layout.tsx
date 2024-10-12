@@ -1,4 +1,4 @@
-import { container, content, nav } from "./Layout.css";
+import styles from "./Layout.module.css";
 
 import Link from "next/link";
 import { ReactNode, useContext } from "react";
@@ -44,8 +44,8 @@ const Layout = ({ children }: Props) => {
     (issue) => stats.effort[issue.id].comparisons === 0
   ).length;
   return (
-    <div className={container}>
-      <nav className={nav}>
+    <div className={styles.container}>
+      <nav className={styles.nav}>
         <span>
           <Link href="/">Issues</Link>
           {issuesWithOutOfDateEstimates > 0
@@ -60,7 +60,7 @@ const Layout = ({ children }: Props) => {
         </span>
         <Link href="/settings">Settings</Link>
       </nav>
-      <div className={content}>
+      <div className={styles.content}>
         {pendingRequests > 0 ? (
           <div>{pendingRequests} pending request(s)…</div>
         ) : (

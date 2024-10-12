@@ -1,10 +1,10 @@
 import { ParentSize } from "@visx/responsive";
 import { addEdge, create, isCyclic } from "graph-fns";
 import { useEffect, useState } from "react";
-import NetworkGraph from "./NetworkGraph";
+import { RelationSummary, State } from "../core/_types";
 import Layer from "./Layer";
-import { card } from "./RelationshipGraph.css";
-import { State, RelationSummary } from "../core/_types";
+import NetworkGraph from "./NetworkGraph";
+import styles from "./RelationshipGraph.module.css";
 
 const getAncestors = (
   relations: Array<RelationSummary>,
@@ -109,7 +109,7 @@ const RelationshipGraph = ({
         <div style={{ width: "100%", height: "100%" }}>
           <ParentSize>
             {({ width, height }) => (
-              <div className={card}>
+              <div className={styles.card}>
                 <NetworkGraph
                   width={width}
                   height={height}

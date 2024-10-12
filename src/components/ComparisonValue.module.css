@@ -1,0 +1,9 @@
+.none {
+  background: red;
+  padding: 0 0.5em;
+}
+
+.low {
+  background: orange;
+  padding: 0 0.5em;
+}
