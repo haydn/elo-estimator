@@ -1,13 +1,15 @@
-import styles from "./LinearApp.module.css";
-
 import { ReactNode, useCallback } from "react";
 import Core from "../core/Core";
-import { Comparison, IssueDetail, IssueSummary } from "../core/_types";
-import { issueSummarySchema } from "./issueSummarySchema";
+import {
+  Comparison,
+  IssueDetail,
+  IssueSummary,
+  RelationSummary,
+} from "../core/_types";
 import { useLocalStorage } from "../utils/useLocalStorage";
-import { issueDetailSchema } from "./issueDetailSchema";
-import { RelationSummary } from "../core/_types";
 import CredentialsForm from "./CredentialsForm";
+import { issueDetailSchema } from "./issueDetailSchema";
+import { issueSummarySchema } from "./issueSummarySchema";
 
 type Props = {
   children: ReactNode;

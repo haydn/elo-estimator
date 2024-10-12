@@ -1,12 +1,12 @@
 import "./app.css";
 
 import { AppProps } from "next/app";
-import Picker from "../core/Picker";
+import LinearApp from "../linear/LinearApp";
 
 const App = ({ Component, pageProps }: AppProps) => (
-  <Picker>
+  <LinearApp>
     <Component {...pageProps} />
-  </Picker>
+  </LinearApp>
 );
 
 export default App;
