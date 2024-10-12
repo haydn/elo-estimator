@@ -8,7 +8,7 @@ import { Comparison } from "./_types";
 
 type Props = {
   firstButtonLabel: string;
-  property: "effort" | "value";
+  property: "effort";
   successiveButtonLabel: string;
   title: ReactNode;
   tournamentId: string;
