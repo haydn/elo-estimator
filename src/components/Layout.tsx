@@ -1,3 +1,5 @@
+"use client";
+
 import styles from "./Layout.module.css";
 
 import Link from "next/link";

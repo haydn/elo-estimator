@@ -1,5 +1,7 @@
+"use client";
+
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useContext, useEffect } from "react";
 import { v4 as uuid } from "uuid";
 import Layout from "../../components/Layout";
@@ -22,7 +24,7 @@ const EffortIndexPage: NextPage = () => {
     }
   }, [createTournament, issueSummaries.length, router]);
 
-  return <Layout>Generating tournament...</Layout>;
+  return <>Generating tournament...</>;
 };
 
 export default EffortIndexPage;

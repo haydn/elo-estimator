@@ -1,7 +1,8 @@
+"use client";
+
 import type { NextPage } from "next";
 import { useContext, useState } from "react";
 import ComparisonValue from "../components/ComparisonValue";
-import Layout from "../components/Layout";
 import ProjectName from "../components/ProjectName";
 import RelationshipGraph from "../components/RelationshipGraph";
 import CoreContext from "../core/CoreContext";
@@ -49,7 +50,7 @@ const IndexPage: NextPage = () => {
   );
 
   return (
-    <Layout>
+    <>
       <div
         style={{
           alignItems: "center",
@@ -208,7 +209,7 @@ const IndexPage: NextPage = () => {
             })}
         </tbody>
       </table>
-    </Layout>
+    </>
   );
 };
 

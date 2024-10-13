@@ -3,7 +3,6 @@ import styles from "./CredentialsForm.module.css";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import credentialsSchema from "./credentialsSchema";
-import { useLocalStorage } from "../utils/useLocalStorage";
 
 type Props = {
   value: z.infer<typeof credentialsSchema> | null;
@@ -13,7 +12,6 @@ type Props = {
 const CredentialsForm = ({ value, onSubmit }: Props) => {
   const [apiKey, setApiKey] = useState(value?.apiKey ?? "");
   const [teamId, setTeamId] = useState(value?.teamId ?? "");
-  const [_, setAppId] = useLocalStorage("app");
 
   useEffect(() => {
     setApiKey((current) =>
@@ -54,14 +52,6 @@ const CredentialsForm = ({ value, onSubmit }: Props) => {
         />
       </div>
       <footer className={styles.footer}>
-        <button
-          type="button"
-          onClick={() => {
-            setAppId(undefined);
-          }}
-        >
-          Switch App
-        </button>
         <button>Save</button>
       </footer>
     </form>

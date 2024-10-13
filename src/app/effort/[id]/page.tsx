@@ -1,21 +1,16 @@
-import type { NextPage } from "next";
-import { useRouter } from "next/router";
-import Layout from "../../components/Layout";
-import IssueComparison from "../../core/IssueComparison";
+"use client";
 
-const EffortPage: NextPage = () => {
-  const { push, query } = useRouter();
-  const id = Array.isArray(query.id) ? query.id[0] : query.id;
+import IssueComparison from "../../../core/IssueComparison";
 
-  if (!id) {
-    push("/effort");
-    return null;
-  }
+type Params = {
+  id: string;
+};
 
+const EffortPage = ({ params }: { params: Params }) => {
   return (
-    <Layout>
+    <>
       <IssueComparison
-        tournamentId={id}
+        tournamentId={params.id}
         property="effort"
         title={
           <>
@@ -41,7 +36,7 @@ const EffortPage: NextPage = () => {
         firstButtonLabel="Quickest"
         successiveButtonLabel="Next quickest"
       />
-    </Layout>
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
 import styles from "./IssueComparison.module.css";
 
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { type ReactNode, useContext, useState } from "react";
 import IssueCard from "../components/IssueCard";
 import CoreContext from "./CoreContext";

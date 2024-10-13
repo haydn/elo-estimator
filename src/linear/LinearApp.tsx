@@ -1,3 +1,5 @@
+"use client";
+
 import gql from "dedent";
 import { type ReactNode, useCallback } from "react";
 import Core from "../core/Core";

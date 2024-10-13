@@ -22,7 +22,7 @@ const getRedisResponseSchema = z.union([
 const getComparisons = async (
   app: "linear",
   teamId: string,
-  property: "effort" | "value",
+  property: "effort",
   start: string = "-"
 ): Promise<Array<Comparison>> => {
   const response = await fetch(

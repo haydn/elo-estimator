@@ -1,6 +1,5 @@
 import { formatISO, fromUnixTime } from "date-fns";
 import gql from "dedent";
-import type { NextApiRequest } from "next";
 import { z } from "zod";
 import { postBodySchema, postLinearResponseSchema } from "../linear/_schema";
 import type { Comparison } from "./_types";
@@ -31,7 +30,7 @@ const postComparisons = async (
   app: "linear",
   teamId: string,
   property: "effort" | "value",
-  body: NextApiRequest["body"]
+  body: unknown
 ): Promise<Array<Comparison>> => {
   const { apiKey, comparisons, highWaterMark } = postBodySchema.parse(body);
 
