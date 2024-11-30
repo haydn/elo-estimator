@@ -6,6 +6,7 @@ import ComparisonValue from "../components/ComparisonValue";
 import ProjectName from "../components/ProjectName";
 import RelationshipGraph from "../components/RelationshipGraph";
 import CoreContext from "../core/CoreContext";
+import Link from "next/link";
 
 const IndexPage: NextPage = () => {
   const [sortColumn, setSortColumn] = useState<{
@@ -158,9 +159,11 @@ const IndexPage: NextPage = () => {
               return (
                 <tr key={issue.id}>
                   <td>
-                    <span style={{ whiteSpace: "nowrap" }}>
-                      {issue.identifier}
-                    </span>
+                    <Link href={`/effort/${issue.id}`}>
+                      <span style={{ whiteSpace: "nowrap" }}>
+                        {issue.identifier}
+                      </span>
+                    </Link>
                   </td>
                   <td>
                     {issue.projectName ? (

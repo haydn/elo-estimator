@@ -1,28 +1,35 @@
 "use client";
 
-import type { NextPage } from "next";
+import weightedRandomPick from "@/utils/weightedRandomPick";
 import { useRouter } from "next/navigation";
 import { useContext, useEffect } from "react";
-import { v4 as uuid } from "uuid";
-import Layout from "../../components/Layout";
 import CoreContext from "../../core/CoreContext";
 
-const EffortIndexPage: NextPage = () => {
+const EffortIndexPage = () => {
   const {
-    createTournament,
-    state: { issueSummaries },
+    state: { issueSummaries, stats },
   } = useContext(CoreContext);
   const router = useRouter();
 
   useEffect(() => {
     if (issueSummaries.length > 0) {
-      const id = uuid();
+      const relevantIssues = issueSummaries.filter(
+        (issue) =>
+          issue.state === "triage" ||
+          issue.state === "backlog" ||
+          issue.state === "unstarted"
+      );
 
-      createTournament(id);
+      const id = weightedRandomPick(
+        [...relevantIssues.map(({ id }) => id)].sort(
+          (a, b) => stats[a].comparisons - stats[b].comparisons
+        ),
+        8
+      );
 
       router.push(`/effort/${id}`);
     }
-  }, [createTournament, issueSummaries.length, router]);
+  }, [issueSummaries, issueSummaries.length, router, stats]);
 
   return <>Generating tournament...</>;
 };

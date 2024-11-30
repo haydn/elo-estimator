@@ -1,37 +1,63 @@
 import styles from "./IssueComparison.module.css";
 
 import { useRouter } from "next/navigation";
-import { type ReactNode, useContext, useState } from "react";
+import { type ReactNode, useContext, useEffect, useState } from "react";
 import IssueCard from "../components/IssueCard";
 import CoreContext from "./CoreContext";
 import type { Comparison } from "./_types";
+import weightedRandomPick from "@/utils/weightedRandomPick";
 
 type Props = {
   firstButtonLabel: string;
-  property: "effort";
   successiveButtonLabel: string;
   title: ReactNode;
-  tournamentId: string;
+  issueId: string;
 };
 
 const IssueComparison = ({
   firstButtonLabel,
-  property,
   successiveButtonLabel,
   title,
-  tournamentId,
+  issueId,
 }: Props) => {
   const {
     addComparisons,
-    state: { issueDetails, tournaments, pendingRequests },
+    state: { issueSummaries, pendingRequests, stats },
   } = useContext(CoreContext);
 
   const router = useRouter();
 
+  const [issueIds, setIssueIds] = useState<Array<string>>([issueId]);
   const [order, setOrder] = useState<Array<string>>([]);
 
-  const issueIds = tournaments[tournamentId] ?? [];
-  const issues = issueIds.map((id) => issueDetails[id]);
+  useEffect(() => {
+    if (issueIds.length < 5) {
+      setIssueIds((current) => {
+        const relevantIssues = issueSummaries.filter(
+          (issue) =>
+            issue.state === "triage" ||
+            issue.state === "backlog" ||
+            issue.state === "unstarted"
+        );
+        const newIds: Array<string> = [...current];
+
+        newIds.push(
+          weightedRandomPick(
+            [...relevantIssues.map(({ id }) => id)]
+              .filter((x) => !newIds.includes(x))
+              .sort(
+                (a, b) =>
+                  Math.abs(stats[issueId].rating - stats[a].rating) -
+                  Math.abs(stats[issueId].rating - stats[b].rating)
+              ),
+            2
+          )
+        );
+
+        return newIds;
+      });
+    }
+  }, [issueId, issueIds, issueSummaries, stats]);
 
   return (
     <>
@@ -42,13 +68,11 @@ const IssueComparison = ({
         {pendingRequests > 0 ? (
           <div>{pendingRequests} pending request(s)…</div>
         ) : (
-          issues.map((issue) =>
-            issue ? (
-              <div key={issue.id}>
-                <IssueCard issue={issue} />
-              </div>
-            ) : null
-          )
+          issueIds.map((id) => (
+            <div key={id}>
+              <IssueCard id={id} />
+            </div>
+          ))
         )}
       </div>
       <div className={styles.footer}>
@@ -95,9 +119,9 @@ const IssueComparison = ({
 
               await addComparisons(comparisons);
 
-              router.push(`/${property}`);
+              router.push(`/effort`);
             }}
-            disabled={order.length !== issues.length || pendingRequests > 0}
+            disabled={order.length !== issueIds.length || pendingRequests > 0}
           >
             Submit
           </button>

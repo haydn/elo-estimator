@@ -3,12 +3,10 @@ import getStats from "./getStats";
 
 export type State = {
   comparisons: Array<Comparison>;
-  issueDetails: Record<string, IssueDetail | undefined>;
   issueSummaries: Array<IssueSummary>;
   pendingRequests: number;
   scales: ReturnType<typeof scaleLinear<number>>;
   stats: ReturnType<typeof getStats>;
-  tournaments: Record<string, Array<string> | undefined>;
 };
 
 export type Comparison = {

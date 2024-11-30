@@ -13,7 +13,6 @@ type Props = {
   ) => Array<Comparison> | Promise<Array<Comparison>>;
   children: ReactNode;
   getComparisons: () => Array<Comparison> | Promise<Array<Comparison>>;
-  getIssueDetail: (id: string) => IssueDetail | Promise<IssueDetail>;
   getIssueSummaries: () => Array<IssueSummary> | Promise<Array<IssueSummary>>;
   updateIssueEstimate: (id: string, estimate: number) => void | Promise<void>;
 };
@@ -30,7 +29,6 @@ const decrementPendingRequest = (state: State) => ({
 
 const Core = ({
   children,
-  getIssueDetail,
   getIssueSummaries,
   getComparisons,
   ...props
@@ -62,70 +60,6 @@ const Core = ({
         setState(decrementPendingRequest);
       });
   }, [getComparisons, getIssueSummaries]);
-
-  const createTournament = useCallback(
-    (id: string) => {
-      const relevantIssues = state.issueSummaries.filter(
-        (issue) =>
-          issue.state === "triage" ||
-          issue.state === "backlog" ||
-          issue.state === "unstarted"
-      );
-      const ids: Array<string> = [];
-
-      ids.push(
-        weightedRandomPick(
-          [...relevantIssues.map(({ id }) => id)].sort(
-            (a, b) => state.stats[a].comparisons - state.stats[b].comparisons
-          ),
-          8
-        )
-      );
-
-      for (let i = 0; i < 5 - 1; i++) {
-        ids.push(
-          weightedRandomPick(
-            [...relevantIssues.map(({ id }) => id)]
-              .filter((x) => !ids.includes(x))
-              .sort(
-                (a, b) =>
-                  Math.abs(state.stats[ids[0]].rating - state.stats[a].rating) -
-                  Math.abs(state.stats[ids[0]].rating - state.stats[b].rating)
-              ),
-            2
-          )
-        );
-      }
-
-      for (const id of ids) {
-        setState(incrementPendingRequest);
-        Promise.resolve(getIssueDetail(id))
-          .then((issueDetail) => {
-            setState((current) => ({
-              ...current,
-              issueDetails: {
-                ...current.issueDetails,
-                [id]: issueDetail,
-              },
-            }));
-          })
-          .finally(() => {
-            setState(decrementPendingRequest);
-          });
-      }
-
-      setState((current) => {
-        return {
-          ...current,
-          tournaments: {
-            ...current.tournaments,
-            [id]: ids,
-          },
-        };
-      });
-    },
-    [getIssueDetail, state.issueSummaries, state.stats]
-  );
 
   const addComparisons = useCallback(
     async (
@@ -185,7 +119,7 @@ const Core = ({
 
   return (
     <CoreContext.Provider
-      value={{ addComparisons, createTournament, state, updateIssueEstimate }}
+      value={{ addComparisons, state, updateIssueEstimate }}
     >
       {children}
     </CoreContext.Provider>

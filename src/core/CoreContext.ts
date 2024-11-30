@@ -6,12 +6,10 @@ const CoreContext = createContext<{
   addComparisons: (
     comparisons: Array<Pick<Comparison, "issueAId" | "issueBId" | "result">>
   ) => void | Promise<void>;
-  createTournament: (id: string) => void;
   state: State;
   updateIssueEstimate: (id: string, estimate: number) => void | Promise<void>;
 }>({
   addComparisons: () => {},
-  createTournament: () => {},
   state: defaultState,
   updateIssueEstimate: () => {},
 });

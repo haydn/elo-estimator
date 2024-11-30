@@ -10,8 +10,7 @@ const EffortPage = ({ params }: { params: Params }) => {
   return (
     <>
       <IssueComparison
-        tournamentId={params.id}
-        property="effort"
+        issueId={params.id}
         title={
           <>
             Which of these issues would be{" "}
