@@ -18,7 +18,7 @@ const EffortIndexPage: NextPage = () => {
     if (issueSummaries.length > 0) {
       const id = uuid();
 
-      createTournament(id, "effort");
+      createTournament(id);
 
       router.push(`/effort/${id}`);
     }

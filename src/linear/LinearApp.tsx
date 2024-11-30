@@ -23,24 +23,20 @@ const LinearApp = ({ children }: Props) => {
   const [teamId, setTeamId] = useLocalStorage("linear_team_id");
 
   const addComparisons = async (
-    property: "effort",
     comparisons: Array<Pick<Comparison, "issueAId" | "issueBId" | "result">>,
     highWaterMark: string | undefined
   ) => {
-    const response = await fetch(
-      `/api/linear/${teamId}/${property}/comparisons`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          apiKey: apiKey,
-          comparisons,
-          highWaterMark,
-        }),
-      }
-    );
+    const response = await fetch(`/api/linear/${teamId}/effort/comparisons`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        apiKey: apiKey,
+        comparisons,
+        highWaterMark,
+      }),
+    });
 
     if (response.status !== 200) {
       throw Error(await response.text());
@@ -49,20 +45,15 @@ const LinearApp = ({ children }: Props) => {
     return response.json();
   };
 
-  const getComparisons = useCallback(
-    async (property: "effort"): Promise<Array<Comparison>> => {
-      const response = await fetch(
-        `/api/linear/${teamId}/${property}/comparisons`
-      );
+  const getComparisons = useCallback(async (): Promise<Array<Comparison>> => {
+    const response = await fetch(`/api/linear/${teamId}/effort/comparisons`);
 
-      if (response.status !== 200) {
-        throw Error(await response.text());
-      }
+    if (response.status !== 200) {
+      throw Error(await response.text());
+    }
 
-      return response.json();
-    },
-    [teamId]
-  );
+    return response.json();
+  }, [teamId]);
 
   const getIssueDetail = useCallback(
     async (id: string): Promise<IssueDetail> => {

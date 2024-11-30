@@ -17,20 +17,20 @@ const IndexPage: NextPage = () => {
 
   const { issueSummaries, scales, stats } = state;
 
-  const minRating = Object.keys(stats.effort).reduce(
-    (current, id) => Math.min(stats.effort[id].rating, current),
+  const minRating = Object.keys(stats).reduce(
+    (current, id) => Math.min(stats[id].rating, current),
     Number.MAX_VALUE
   );
 
-  const maxRating = Object.keys(stats.effort).reduce(
-    (current, id) => Math.max(stats.effort[id].rating, current),
+  const maxRating = Object.keys(stats).reduce(
+    (current, id) => Math.max(stats[id].rating, current),
     Number.MIN_VALUE
   );
 
   const recommendedEstimate = (id: string) => {
     const step = (maxRating - minRating) / [1, 2, 3, 5, 8, 13].length;
     let index = [1, 2, 3, 5, 8, 13].length - 1;
-    while (index > 0 && stats.effort[id].rating > maxRating - step * index) {
+    while (index > 0 && stats[id].rating > maxRating - step * index) {
       index -= 1;
     }
     return [1, 2, 3, 5, 8, 13][index];
@@ -45,7 +45,7 @@ const IndexPage: NextPage = () => {
 
   const issuesWithOutOfDateEstimates = issuesToList.filter(
     (issue) =>
-      stats.effort[issue.id].comparisons >= 4 &&
+      stats[issue.id].comparisons >= 4 &&
       issue.estimate !== recommendedEstimate(issue.id)
   );
 
@@ -149,8 +149,8 @@ const IndexPage: NextPage = () => {
                     : bNum - aNum;
                 case "effort":
                   return sortColumn.direction === "desc"
-                    ? stats.effort[b.id].rating - stats.effort[a.id].rating
-                    : stats.effort[a.id].rating - stats.effort[b.id].rating;
+                    ? stats[b.id].rating - stats[a.id].rating
+                    : stats[a.id].rating - stats[b.id].rating;
               }
             })
             .map((issue) => {
@@ -173,11 +173,8 @@ const IndexPage: NextPage = () => {
                   <td>{issue.cycle}</td>
                   <td>{issue.title}</td>
                   <td>
-                    {scales.effort(stats.effort[id].rating).toFixed(2)}&nbsp;(
-                    <ComparisonValue>
-                      {stats.effort[id].comparisons}
-                    </ComparisonValue>
-                    )
+                    {scales(stats[id].rating).toFixed(2)}&nbsp;(
+                    <ComparisonValue>{stats[id].comparisons}</ComparisonValue>)
                   </td>
                   <td>
                     <RelationshipGraph
@@ -187,10 +184,8 @@ const IndexPage: NextPage = () => {
                     {null}
                   </td>
                   <td>
-                    {stats.effort[id].comparisons >= 4
-                      ? recommendedEstimate(id)
-                      : "-"}{" "}
-                    {stats.effort[id].comparisons >= 4 &&
+                    {stats[id].comparisons >= 4 ? recommendedEstimate(id) : "-"}{" "}
+                    {stats[id].comparisons >= 4 &&
                     issue.estimate !== recommendedEstimate(id) ? (
                       <button
                         onClick={async () => {

@@ -1,13 +1,12 @@
 import { createContext } from "react";
-import type { Comparison, ComparisonProperty, State } from "./_types";
+import type { Comparison, State } from "./_types";
 import defaultState from "./defaultState";
 
 const CoreContext = createContext<{
   addComparisons: (
-    property: ComparisonProperty,
     comparisons: Array<Pick<Comparison, "issueAId" | "issueBId" | "result">>
   ) => void | Promise<void>;
-  createTournament: (id: string, property: ComparisonProperty) => void;
+  createTournament: (id: string) => void;
   state: State;
   updateIssueEstimate: (id: string, estimate: number) => void | Promise<void>;
 }>({

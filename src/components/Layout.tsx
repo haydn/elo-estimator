@@ -14,19 +14,19 @@ const Layout = ({ children }: Props) => {
   const {
     state: { pendingRequests, stats, issueSummaries },
   } = useContext(CoreContext);
-  const minRating = Object.keys(stats.effort).reduce(
-    (current, id) => Math.min(stats.effort[id].rating, current),
+  const minRating = Object.keys(stats).reduce(
+    (current, id) => Math.min(stats[id].rating, current),
     Number.MAX_VALUE
   );
 
-  const maxRating = Object.keys(stats.effort).reduce(
-    (current, id) => Math.max(stats.effort[id].rating, current),
+  const maxRating = Object.keys(stats).reduce(
+    (current, id) => Math.max(stats[id].rating, current),
     Number.MIN_VALUE
   );
   const recommendedEstimate = (id: string) => {
     const step = (maxRating - minRating) / [1, 2, 3, 5, 8, 13].length;
     let index = [1, 2, 3, 5, 8, 13].length - 1;
-    while (index > 0 && stats.effort[id].rating > maxRating - step * index) {
+    while (index > 0 && stats[id].rating > maxRating - step * index) {
       index -= 1;
     }
     return [1, 2, 3, 5, 8, 13][index];
@@ -39,11 +39,11 @@ const Layout = ({ children }: Props) => {
   );
   const issuesWithOutOfDateEstimates = issues.filter(
     (issue) =>
-      stats.effort[issue.id].comparisons >= 4 &&
+      stats[issue.id].comparisons >= 4 &&
       issue.estimate !== recommendedEstimate(issue.id)
   ).length;
   const issuesMissingEffortComparisons = issues.filter(
-    (issue) => stats.effort[issue.id].comparisons === 0
+    (issue) => stats[issue.id].comparisons === 0
   ).length;
   return (
     <div className={styles.container}>

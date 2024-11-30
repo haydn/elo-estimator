@@ -2,12 +2,12 @@ import { scaleLinear } from "@visx/scale";
 import getStats from "./getStats";
 
 export type State = {
-  comparisons: Record<ComparisonProperty, Array<Comparison>>;
+  comparisons: Array<Comparison>;
   issueDetails: Record<string, IssueDetail | undefined>;
   issueSummaries: Array<IssueSummary>;
   pendingRequests: number;
-  scales: Record<ComparisonProperty, ReturnType<typeof scaleLinear<number>>>;
-  stats: Record<ComparisonProperty, ReturnType<typeof getStats>>;
+  scales: ReturnType<typeof scaleLinear<number>>;
+  stats: ReturnType<typeof getStats>;
   tournaments: Record<string, Array<string> | undefined>;
 };
 
@@ -19,8 +19,6 @@ export type Comparison = {
   result: 0 | 1;
   userId: string;
 };
-
-export type ComparisonProperty = "effort";
 
 export type IssueDetail = IssueSummary & {
   comments: Array<{

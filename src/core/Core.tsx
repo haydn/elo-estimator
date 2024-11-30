@@ -2,26 +2,17 @@ import { scaleLinear } from "@visx/scale";
 import { type ReactNode, useCallback, useEffect, useState } from "react";
 import weightedRandomPick from "../utils/weightedRandomPick";
 import CoreContext from "./CoreContext";
-import type {
-  Comparison,
-  ComparisonProperty,
-  IssueDetail,
-  IssueSummary,
-  State,
-} from "./_types";
+import type { Comparison, IssueDetail, IssueSummary, State } from "./_types";
 import defaultState from "./defaultState";
 import getStats from "./getStats";
 
 type Props = {
   addComparisons: (
-    property: ComparisonProperty,
     comparisons: Array<Pick<Comparison, "issueAId" | "issueBId" | "result">>,
     highWaterMark: string | undefined
   ) => Array<Comparison> | Promise<Array<Comparison>>;
   children: ReactNode;
-  getComparisons: (
-    property: ComparisonProperty
-  ) => Array<Comparison> | Promise<Array<Comparison>>;
+  getComparisons: () => Array<Comparison> | Promise<Array<Comparison>>;
   getIssueDetail: (id: string) => IssueDetail | Promise<IssueDetail>;
   getIssueSummaries: () => Array<IssueSummary> | Promise<Array<IssueSummary>>;
   updateIssueEstimate: (id: string, estimate: number) => void | Promise<void>;
@@ -49,32 +40,22 @@ const Core = ({
   useEffect(() => {
     setState(incrementPendingRequest);
 
-    Promise.all([getIssueSummaries(), getComparisons("effort")])
+    Promise.all([getIssueSummaries(), getComparisons()])
       .then(([issueSummaries, effortComparisons]) => {
-        const stats: Record<ComparisonProperty, ReturnType<typeof getStats>> = {
-          effort: getStats(issueSummaries, effortComparisons),
-        };
+        const stats = getStats(issueSummaries, effortComparisons);
 
         setState((current) => ({
           ...current,
           issueSummaries,
-          comparisons: {
-            effort: effortComparisons,
-          },
+          comparisons: effortComparisons,
           stats,
-          scales: {
-            effort: scaleLinear({
-              domain: [
-                Math.max(
-                  ...issueSummaries.map(({ id }) => stats.effort[id].rating)
-                ),
-                Math.min(
-                  ...issueSummaries.map(({ id }) => stats.effort[id].rating)
-                ),
-              ],
-              range: [0, 1],
-            }),
-          },
+          scales: scaleLinear({
+            domain: [
+              Math.max(...issueSummaries.map(({ id }) => stats[id].rating)),
+              Math.min(...issueSummaries.map(({ id }) => stats[id].rating)),
+            ],
+            range: [0, 1],
+          }),
         }));
       })
       .finally(() => {
@@ -83,7 +64,7 @@ const Core = ({
   }, [getComparisons, getIssueSummaries]);
 
   const createTournament = useCallback(
-    (id: string, property: ComparisonProperty) => {
+    (id: string) => {
       const relevantIssues = state.issueSummaries.filter(
         (issue) =>
           issue.state === "triage" ||
@@ -95,9 +76,7 @@ const Core = ({
       ids.push(
         weightedRandomPick(
           [...relevantIssues.map(({ id }) => id)].sort(
-            (a, b) =>
-              state.stats[property][a].comparisons -
-              state.stats[property][b].comparisons
+            (a, b) => state.stats[a].comparisons - state.stats[b].comparisons
           ),
           8
         )
@@ -110,14 +89,8 @@ const Core = ({
               .filter((x) => !ids.includes(x))
               .sort(
                 (a, b) =>
-                  Math.abs(
-                    state.stats[property][ids[0]].rating -
-                      state.stats[property][a].rating
-                  ) -
-                  Math.abs(
-                    state.stats[property][ids[0]].rating -
-                      state.stats[property][b].rating
-                  )
+                  Math.abs(state.stats[ids[0]].rating - state.stats[a].rating) -
+                  Math.abs(state.stats[ids[0]].rating - state.stats[b].rating)
               ),
             2
           )
@@ -156,40 +129,30 @@ const Core = ({
 
   const addComparisons = useCallback(
     async (
-      property: ComparisonProperty,
       comparisons: Array<Pick<Comparison, "issueAId" | "issueBId" | "result">>
     ) => {
       setState(incrementPendingRequest);
       try {
-        const latestComparison = [...state.comparisons[property]]
+        const latestComparison = [...state.comparisons]
           .sort((a, b) => b.id.localeCompare(a.id))
           .find(() => true);
 
         const newComparisons = await props.addComparisons(
-          property,
           comparisons,
           latestComparison?.id
         );
 
         setState((current) => {
-          const updatedComparisons = {
+          const updatedComparisons = [
             ...current.comparisons,
-            [property]: [...current.comparisons[property], ...newComparisons],
-          };
+            ...newComparisons,
+          ];
 
-          const stats: Record<
-            ComparisonProperty,
-            ReturnType<typeof getStats>
-          > = {
-            effort: getStats(current.issueSummaries, updatedComparisons.effort),
-          };
+          const stats = getStats(current.issueSummaries, updatedComparisons);
 
           return {
             ...current,
-            comparisons: {
-              ...current.comparisons,
-              [property]: [...current.comparisons[property], ...newComparisons],
-            },
+            comparisons: updatedComparisons,
             stats,
           };
         });

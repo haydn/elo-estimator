@@ -93,7 +93,7 @@ const IssueComparison = ({
                 }
               }
 
-              await addComparisons(property, comparisons);
+              await addComparisons(comparisons);
 
               router.push(`/${property}`);
             }}
