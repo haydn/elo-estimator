@@ -1,20 +1,14 @@
 "use client";
 
+import CoreContext from "@/core/CoreContext";
+import { useContext } from "react";
 import CredentialsForm from "../../linear/CredentialsForm";
-import { useLocalStorage } from "../../utils/useLocalStorage";
 
 const SettingsPage = () => {
-  const [apiKey, setApiKey] = useLocalStorage("linear_api_key");
-  const [teamId, setTeamId] = useLocalStorage("linear_team_id");
+  const { apiKey, teamId } = useContext(CoreContext);
 
   return (
-    <CredentialsForm
-      value={{ apiKey: apiKey ?? "", teamId: teamId ?? "" }}
-      onSubmit={({ apiKey, teamId }) => {
-        setApiKey(apiKey);
-        setTeamId(teamId);
-      }}
-    />
+    <CredentialsForm value={{ apiKey: apiKey ?? "", teamId: teamId ?? "" }} />
   );
 };
 

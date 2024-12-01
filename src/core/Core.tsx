@@ -1,128 +1,47 @@
-import { scaleLinear } from "@visx/scale";
-import { type ReactNode, useCallback, useEffect, useState } from "react";
-import weightedRandomPick from "../utils/weightedRandomPick";
+"use client";
+
+import CredentialsForm from "@/linear/CredentialsForm";
+import memoFn from "@/utils/memoFn";
+import { useSyncExternalStore, type ReactNode } from "react";
 import CoreContext from "./CoreContext";
-import type { Comparison, IssueDetail, IssueSummary, State } from "./_types";
-import defaultState from "./defaultState";
-import getStats from "./getStats";
 
 type Props = {
-  addComparisons: (
-    comparisons: Array<Pick<Comparison, "issueAId" | "issueBId" | "result">>,
-    highWaterMark: string | undefined
-  ) => Array<Comparison> | Promise<Array<Comparison>>;
   children: ReactNode;
-  getComparisons: () => Array<Comparison> | Promise<Array<Comparison>>;
-  getIssueSummaries: () => Array<IssueSummary> | Promise<Array<IssueSummary>>;
-  updateIssueEstimate: (id: string, estimate: number) => void | Promise<void>;
 };
 
-const incrementPendingRequest = (state: State) => ({
-  ...state,
-  pendingRequests: state.pendingRequests + 1,
-});
-
-const decrementPendingRequest = (state: State) => ({
-  ...state,
-  pendingRequests: state.pendingRequests - 1,
-});
-
-const Core = ({
-  children,
-  getIssueSummaries,
-  getComparisons,
-  ...props
-}: Props) => {
-  const [state, setState] = useState(defaultState);
-
-  useEffect(() => {
-    setState(incrementPendingRequest);
-
-    Promise.all([getIssueSummaries(), getComparisons()])
-      .then(([issueSummaries, effortComparisons]) => {
-        const stats = getStats(issueSummaries, effortComparisons);
-
-        setState((current) => ({
-          ...current,
-          issueSummaries,
-          comparisons: effortComparisons,
-          stats,
-          scales: scaleLinear({
-            domain: [
-              Math.max(...issueSummaries.map(({ id }) => stats[id].rating)),
-              Math.min(...issueSummaries.map(({ id }) => stats[id].rating)),
-            ],
-            range: [0, 1],
-          }),
-        }));
-      })
-      .finally(() => {
-        setState(decrementPendingRequest);
-      });
-  }, [getComparisons, getIssueSummaries]);
-
-  const addComparisons = useCallback(
-    async (
-      comparisons: Array<Pick<Comparison, "issueAId" | "issueBId" | "result">>
-    ) => {
-      setState(incrementPendingRequest);
-      try {
-        const latestComparison = [...state.comparisons]
-          .sort((a, b) => b.id.localeCompare(a.id))
-          .find(() => true);
-
-        const newComparisons = await props.addComparisons(
-          comparisons,
-          latestComparison?.id
-        );
-
-        setState((current) => {
-          const updatedComparisons = [
-            ...current.comparisons,
-            ...newComparisons,
-          ];
-
-          const stats = getStats(current.issueSummaries, updatedComparisons);
-
-          return {
-            ...current,
-            comparisons: updatedComparisons,
-            stats,
-          };
-        });
-      } finally {
-        setState(decrementPendingRequest);
-      }
+const Core = ({ children }: Props) => {
+  const { apiKey, teamId } = useSyncExternalStore(
+    (listener) => {
+      window.addEventListener("credentialsUpdated", listener);
+      return () => {
+        window.removeEventListener("credentialsUpdated", listener);
+      };
     },
-    [props, state.comparisons]
+    memoFn(
+      () => ({
+        apiKey: window.localStorage.getItem("linear_api_key"),
+        teamId: window.localStorage.getItem("linear_team_id"),
+      }),
+      (previous, updated) =>
+        previous.apiKey === updated.apiKey && previous.teamId === updated.teamId
+    ),
+    memoFn(
+      () => ({
+        apiKey: null,
+        teamId: null,
+      }),
+      () => true
+    )
   );
 
-  const updateIssueEstimate = useCallback(
-    async (id: string, estimate: number) => {
-      setState(incrementPendingRequest);
-
-      try {
-        await props.updateIssueEstimate(id, estimate);
-
-        setState((current) => ({
-          ...current,
-          issueSummaries: current.issueSummaries.map((issue) =>
-            issue.id === id ? { ...issue, estimate } : issue
-          ),
-        }));
-      } finally {
-        setState(decrementPendingRequest);
-      }
-    },
-    [props]
-  );
-
-  return (
-    <CoreContext.Provider
-      value={{ addComparisons, state, updateIssueEstimate }}
-    >
+  return apiKey !== null && teamId !== null ? (
+    <CoreContext.Provider value={{ apiKey, teamId }}>
       {children}
     </CoreContext.Provider>
+  ) : (
+    <div style={{ padding: 10 }}>
+      <CredentialsForm value={{ apiKey: apiKey ?? "", teamId: teamId ?? "" }} />
+    </div>
   );
 };
 

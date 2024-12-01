@@ -1,12 +1,12 @@
 "use client";
 
+import useDataThing from "@/hooks/useDataThing";
 import type { NextPage } from "next";
-import { useContext, useState } from "react";
+import Link from "next/link";
+import { useState } from "react";
 import ComparisonValue from "../components/ComparisonValue";
 import ProjectName from "../components/ProjectName";
 import RelationshipGraph from "../components/RelationshipGraph";
-import CoreContext from "../core/CoreContext";
-import Link from "next/link";
 
 const IndexPage: NextPage = () => {
   const [sortColumn, setSortColumn] = useState<{
@@ -14,41 +14,20 @@ const IndexPage: NextPage = () => {
     direction: "asc" | "desc";
   }>({ column: "effort", direction: "desc" });
 
-  const { state, updateIssueEstimate } = useContext(CoreContext);
+  const data = useDataThing();
 
-  const { issueSummaries, scales, stats } = state;
+  if (!data) {
+    return <div>Loading…</div>;
+  }
 
-  const minRating = Object.keys(stats).reduce(
-    (current, id) => Math.min(stats[id].rating, current),
-    Number.MAX_VALUE
-  );
-
-  const maxRating = Object.keys(stats).reduce(
-    (current, id) => Math.max(stats[id].rating, current),
-    Number.MIN_VALUE
-  );
-
-  const recommendedEstimate = (id: string) => {
-    const step = (maxRating - minRating) / [1, 2, 3, 5, 8, 13].length;
-    let index = [1, 2, 3, 5, 8, 13].length - 1;
-    while (index > 0 && stats[id].rating > maxRating - step * index) {
-      index -= 1;
-    }
-    return [1, 2, 3, 5, 8, 13][index];
-  };
-
-  const issuesToList = issueSummaries.filter(
-    (issue) =>
-      issue.state === "triage" ||
-      issue.state === "backlog" ||
-      issue.state === "unstarted"
-  );
-
-  const issuesWithOutOfDateEstimates = issuesToList.filter(
-    (issue) =>
-      stats[issue.id].comparisons >= 4 &&
-      issue.estimate !== recommendedEstimate(issue.id)
-  );
+  const {
+    issuesWithOutOfDateEstimates,
+    recommendedEstimates,
+    relevantIssues,
+    scales,
+    stats,
+    updateIssueEstimate,
+  } = data;
 
   return (
     <>
@@ -64,7 +43,7 @@ const IndexPage: NextPage = () => {
         }}
       >
         <span>
-          <b>Total</b>: {issuesToList.length}
+          <b>Total</b>: {relevantIssues.length}
         </span>
         <span>
           <b>Pending</b>: {issuesWithOutOfDateEstimates.length}
@@ -75,7 +54,7 @@ const IndexPage: NextPage = () => {
             for (const issue of issuesWithOutOfDateEstimates) {
               await updateIssueEstimate(
                 issue.id,
-                recommendedEstimate(issue.id)
+                recommendedEstimates[issue.id]
               );
             }
           }}
@@ -139,7 +118,7 @@ const IndexPage: NextPage = () => {
           </tr>
         </thead>
         <tbody>
-          {issuesToList
+          {relevantIssues
             .sort((a, b) => {
               switch (sortColumn.column) {
                 case "key":
@@ -180,21 +159,19 @@ const IndexPage: NextPage = () => {
                     <ComparisonValue>{stats[id].comparisons}</ComparisonValue>)
                   </td>
                   <td>
-                    <RelationshipGraph
-                      context={state}
-                      issueIdentifier={issue.identifier}
-                    />
-                    {null}
+                    <RelationshipGraph issueIdentifier={issue.identifier} />
                   </td>
                   <td>
-                    {stats[id].comparisons >= 4 ? recommendedEstimate(id) : "-"}{" "}
+                    {stats[id].comparisons >= 4
+                      ? recommendedEstimates[id]
+                      : "-"}{" "}
                     {stats[id].comparisons >= 4 &&
-                    issue.estimate !== recommendedEstimate(id) ? (
+                    issue.estimate !== recommendedEstimates[id] ? (
                       <button
                         onClick={async () => {
                           updateIssueEstimate(
                             issue.id,
-                            recommendedEstimate(id)
+                            recommendedEstimates[id]
                           );
                         }}
                       >

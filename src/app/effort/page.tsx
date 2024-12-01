@@ -1,37 +1,31 @@
 "use client";
 
+import useDataThing from "@/hooks/useDataThing";
 import weightedRandomPick from "@/utils/weightedRandomPick";
 import { useRouter } from "next/navigation";
-import { useContext, useEffect } from "react";
-import CoreContext from "../../core/CoreContext";
+import { useEffect } from "react";
 
 const EffortIndexPage = () => {
-  const {
-    state: { issueSummaries, stats },
-  } = useContext(CoreContext);
+  const data = useDataThing();
   const router = useRouter();
 
   useEffect(() => {
-    if (issueSummaries.length > 0) {
-      const relevantIssues = issueSummaries.filter(
-        (issue) =>
-          issue.state === "triage" ||
-          issue.state === "backlog" ||
-          issue.state === "unstarted"
-      );
+    if (data) {
+      const { relevantIssues, stats } = data;
+      if (relevantIssues.length > 0) {
+        const id = weightedRandomPick(
+          [...relevantIssues.map(({ id }) => id)].sort(
+            (a, b) => stats[a].comparisons - stats[b].comparisons
+          ),
+          8
+        );
 
-      const id = weightedRandomPick(
-        [...relevantIssues.map(({ id }) => id)].sort(
-          (a, b) => stats[a].comparisons - stats[b].comparisons
-        ),
-        8
-      );
-
-      router.push(`/effort/${id}`);
+        router.push(`/effort/${id}`);
+      }
     }
-  }, [issueSummaries, issueSummaries.length, router, stats]);
+  }, [data, router]);
 
-  return <>Generating tournament...</>;
+  return <div>Loading…</div>;
 };
 
 export default EffortIndexPage;

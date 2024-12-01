@@ -1,11 +1,21 @@
 import styles from "./IssueComparison.module.css";
 
-import { useRouter } from "next/navigation";
-import { type ReactNode, useContext, useEffect, useState } from "react";
-import IssueCard from "../components/IssueCard";
-import CoreContext from "./CoreContext";
-import type { Comparison } from "./_types";
+import useDataThing from "@/hooks/useDataThing";
 import weightedRandomPick from "@/utils/weightedRandomPick";
+import { useRouter } from "next/navigation";
+import {
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import IssueCard from "../components/IssueCard";
+import type { Comparison } from "./_types";
+import CoreContext from "./CoreContext";
+import useEffortComparisons from "@/hooks/useEffortComparisons";
+import useRelevantIssues from "@/hooks/useRelevantIssues";
+import useStats from "@/hooks/useStats";
 
 type Props = {
   firstButtonLabel: string;
@@ -20,25 +30,19 @@ const IssueComparison = ({
   title,
   issueId,
 }: Props) => {
-  const {
-    addComparisons,
-    state: { issueSummaries, pendingRequests, stats },
-  } = useContext(CoreContext);
-
   const router = useRouter();
+
+  const { apiKey, teamId } = useContext(CoreContext);
+
+  const stats = useStats();
+  const relevantIssues = useRelevantIssues();
 
   const [issueIds, setIssueIds] = useState<Array<string>>([issueId]);
   const [order, setOrder] = useState<Array<string>>([]);
 
   useEffect(() => {
-    if (issueIds.length < 5) {
+    if (relevantIssues && stats && issueIds.length < 5) {
       setIssueIds((current) => {
-        const relevantIssues = issueSummaries.filter(
-          (issue) =>
-            issue.state === "triage" ||
-            issue.state === "backlog" ||
-            issue.state === "unstarted"
-        );
         const newIds: Array<string> = [...current];
 
         newIds.push(
@@ -57,7 +61,46 @@ const IssueComparison = ({
         return newIds;
       });
     }
-  }, [issueId, issueIds, issueSummaries, stats]);
+  }, [issueId, issueIds, relevantIssues, stats]);
+
+  const { data: effortComparisons, mutate: mutateEffortComparisons } =
+    useEffortComparisons();
+
+  const addComparisons = useCallback(
+    async (
+      comparisons: Array<Pick<Comparison, "issueAId" | "issueBId" | "result">>
+    ) => {
+      const latestComparison = [...(effortComparisons ?? [])]
+        .sort((a, b) => b.id.localeCompare(a.id))
+        .find(() => true);
+
+      const response = await fetch(`/api/linear/${teamId}/effort/comparisons`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          apiKey: apiKey,
+          comparisons,
+          highWaterMark: latestComparison?.id,
+        }),
+      });
+
+      if (response.status !== 200) {
+        throw Error(await response.text());
+      }
+
+      const newComparisons = await response.json();
+
+      await mutateEffortComparisons(
+        (current) => [...(current ?? []), ...newComparisons],
+        {
+          revalidate: false,
+        }
+      );
+    },
+    [apiKey, effortComparisons, mutateEffortComparisons, teamId]
+  );
 
   return (
     <>
@@ -65,15 +108,11 @@ const IssueComparison = ({
         <h1>{title}</h1>
       </div>
       <div className={styles.main}>
-        {pendingRequests > 0 ? (
-          <div>{pendingRequests} pending request(s)…</div>
-        ) : (
-          issueIds.map((id) => (
-            <div key={id}>
-              <IssueCard id={id} />
-            </div>
-          ))
-        )}
+        {issueIds.map((id) => (
+          <div key={id}>
+            <IssueCard id={id} />
+          </div>
+        ))}
       </div>
       <div className={styles.footer}>
         <div className={styles.buttons}>
@@ -97,7 +136,7 @@ const IssueComparison = ({
             onClick={() => {
               setOrder([]);
             }}
-            disabled={order.length === 0 || pendingRequests > 0}
+            disabled={order.length === 0}
           >
             Reset
           </button>
@@ -121,7 +160,7 @@ const IssueComparison = ({
 
               router.push(`/effort`);
             }}
-            disabled={order.length !== issueIds.length || pendingRequests > 0}
+            disabled={order.length !== issueIds.length}
           >
             Submit
           </button>

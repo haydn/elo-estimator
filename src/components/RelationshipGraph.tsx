@@ -1,7 +1,8 @@
+import useIssueSummaries from "@/hooks/useIssueSummaries";
 import { ParentSize } from "@visx/responsive";
 import { addEdge, create, isCyclic } from "graph-fns";
 import { useEffect, useState } from "react";
-import type { RelationSummary, State } from "../core/_types";
+import type { RelationSummary } from "../core/_types";
 import Layer from "./Layer";
 import NetworkGraph from "./NetworkGraph";
 import styles from "./RelationshipGraph.module.css";
@@ -37,12 +38,11 @@ const getDescendants = (
 };
 
 const RelationshipGraph = ({
-  context,
   issueIdentifier,
 }: {
-  context: State;
   issueIdentifier: string;
 }) => {
+  const { data: issueSummaries } = useIssueSummaries();
   const [showing, setShowing] = useState(false);
   const [forceStrength, setForceStrength] = useState(1500);
 
@@ -60,7 +60,11 @@ const RelationshipGraph = ({
     };
   });
 
-  const blockingRelations = context.issueSummaries
+  if (!issueSummaries) {
+    return <div>Loading…</div>;
+  }
+
+  const blockingRelations = issueSummaries
     .flatMap((issue) =>
       issue.relations.map(
         (relation): RelationSummary => ({
@@ -116,7 +120,7 @@ const RelationshipGraph = ({
                   graph={graph}
                   forceStrength={forceStrength}
                   label={(identifier) => {
-                    const issue = context.issueSummaries.find(
+                    const issue = issueSummaries.find(
                       (issue) => issue.identifier === identifier
                     );
                     return issue?.title
@@ -124,7 +128,7 @@ const RelationshipGraph = ({
                       : identifier;
                   }}
                   color={(identifier) => {
-                    const issue = context.issueSummaries.find(
+                    const issue = issueSummaries.find(
                       (issue) => issue.identifier === identifier
                     );
                     return issue?.state === "completed" ||
@@ -137,7 +141,7 @@ const RelationshipGraph = ({
                       : "#090";
                   }}
                   textDecoration={(identifier) => {
-                    const issue = context.issueSummaries.find(
+                    const issue = issueSummaries.find(
                       (issue) => issue.identifier === identifier
                     );
                     return issue?.state === "completed" ||
@@ -176,7 +180,7 @@ const RelationshipGraph = ({
         setShowing(true);
       }}
     >
-      Dependency Graph
+      Blocked by {ancestors.length}, blocking {descendants.length}
     </button>
   );
 };

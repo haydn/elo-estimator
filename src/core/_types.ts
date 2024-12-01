@@ -1,14 +1,3 @@
-import { scaleLinear } from "@visx/scale";
-import getStats from "./getStats";
-
-export type State = {
-  comparisons: Array<Comparison>;
-  issueSummaries: Array<IssueSummary>;
-  pendingRequests: number;
-  scales: ReturnType<typeof scaleLinear<number>>;
-  stats: ReturnType<typeof getStats>;
-};
-
 export type Comparison = {
   date: string;
   id: string;

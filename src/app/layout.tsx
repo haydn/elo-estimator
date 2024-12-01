@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import LinearApp from "@/linear/LinearApp";
+import Core from "@/core/Core";
 import type { ReactNode } from "react";
 import "./layout.css";
 
@@ -10,9 +10,9 @@ type Props = {
 const RootLayout = ({ children }: Props) => (
   <html lang="en">
     <body>
-      <LinearApp>
+      <Core>
         <Layout>{children}</Layout>
-      </LinearApp>
+      </Core>
     </body>
   </html>
 );

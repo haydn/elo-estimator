@@ -1,15 +1,15 @@
 import styles from "./CredentialsForm.module.css";
 
 import { useEffect, useState } from "react";
-import { z } from "zod";
-import credentialsSchema from "./credentialsSchema";
 
 type Props = {
-  value: z.infer<typeof credentialsSchema> | null;
-  onSubmit: (values: z.infer<typeof credentialsSchema>) => void;
+  value: {
+    apiKey: string;
+    teamId: string;
+  };
 };
 
-const CredentialsForm = ({ value, onSubmit }: Props) => {
+const CredentialsForm = ({ value }: Props) => {
   const [apiKey, setApiKey] = useState(value?.apiKey ?? "");
   const [teamId, setTeamId] = useState(value?.teamId ?? "");
 
@@ -27,7 +27,9 @@ const CredentialsForm = ({ value, onSubmit }: Props) => {
       className={styles.form}
       onSubmit={(event) => {
         event.preventDefault();
-        onSubmit({ apiKey, teamId });
+        window.localStorage.setItem("linear_api_key", apiKey);
+        window.localStorage.setItem("linear_team_id", teamId);
+        window.dispatchEvent(new Event("credentialsUpdated"));
       }}
     >
       <p>Details will be saved in local storage.</p>
