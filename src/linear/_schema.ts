@@ -6,7 +6,7 @@ const getRedisResponseSchema = z.union([
       z.tuple([
         z.string(),
         z.tuple([z.string(), z.string(), z.string(), z.string()]),
-      ])
+      ]),
     ),
   }),
   z.object({
@@ -21,7 +21,7 @@ const postBodySchema = z.object({
       issueAId: z.string(),
       issueBId: z.string(),
       result: z.union([z.literal(0), z.literal(1)]),
-    })
+    }),
   ),
   highWaterMark: z.string().optional(),
 });
@@ -40,7 +40,7 @@ const postLinearResponseSchema = z.union([
             team: z.object({
               id: z.string(),
             }),
-          })
+          }),
         ),
       }),
       viewer: z.object({
@@ -57,7 +57,7 @@ const postRedisResponseSchema = z.union([
       z.tuple([
         z.string(),
         z.tuple([z.string(), z.string(), z.string(), z.string()]),
-      ])
+      ]),
     ),
   }),
   z.object({
@@ -65,15 +65,9 @@ const postRedisResponseSchema = z.union([
   }),
 ]);
 
-const queryParamsSchema = z.object({
-  teamId: z.string(),
-  property: z.union([z.literal("effort"), z.literal("value")]),
-});
-
 export {
   getRedisResponseSchema,
   postBodySchema,
   postLinearResponseSchema,
   postRedisResponseSchema,
-  queryParamsSchema,
 };

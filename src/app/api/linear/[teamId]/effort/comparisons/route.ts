@@ -14,7 +14,7 @@ const getRedisResponseSchema = z.union([
       z.tuple([
         z.string(),
         z.tuple([z.string(), z.string(), z.string(), z.string()]),
-      ])
+      ]),
     ),
   }),
   z.object({
@@ -23,16 +23,14 @@ const getRedisResponseSchema = z.union([
 ]);
 
 const getComparisons = async (
-  app: "linear",
   teamId: string,
-  property: "effort",
-  start: string = "-"
+  start: string = "-",
 ): Promise<Array<Comparison>> => {
   const response = await fetch(
     [
       KV_REST_API_URL,
       "xrange",
-      `${app}:${property}-comparisons:${teamId}`,
+      `linear:effort-comparisons:${teamId}`,
       start,
       "+",
       "COUNT",
@@ -43,7 +41,7 @@ const getComparisons = async (
         Authorization: `Bearer ${KV_REST_API_TOKEN}`,
         ContentType: "application/json",
       },
-    }
+    },
   );
 
   const data = getRedisResponseSchema.parse(await response.json());
@@ -60,17 +58,12 @@ const getComparisons = async (
       issueBId,
       result: result === "1" ? 1 : 0,
       userId,
-    })
+    }),
   );
 
   return transformedData.length === 5000
     ? transformedData.concat(
-        await getComparisons(
-          app,
-          teamId,
-          property,
-          `(${transformedData[4999].id}`
-        )
+        await getComparisons(teamId, `(${transformedData[4999].id}`),
       )
     : transformedData;
 };
@@ -88,21 +81,19 @@ const postRedisResponseSchema = z.array(
           z.tuple([
             z.string(),
             z.tuple([z.string(), z.string(), z.string(), z.string()]),
-          ])
+          ]),
         ),
       ]),
     }),
     z.object({
       error: z.string(),
     }),
-  ])
+  ]),
 );
 
 const postComparisons = async (
-  app: "linear",
   teamId: string,
-  property: "effort" | "value",
-  body: unknown
+  body: unknown,
 ): Promise<Array<Comparison>> => {
   const { apiKey, comparisons, highWaterMark } = postBodySchema.parse(body);
 
@@ -142,7 +133,7 @@ const postComparisons = async (
   }
 
   const issuesData = postLinearResponseSchema.parse(
-    await issuesResponse.json()
+    await issuesResponse.json(),
   );
 
   if (issuesData.data === null || issuesData.data === undefined) {
@@ -173,7 +164,7 @@ const postComparisons = async (
       comparisons
         .map(({ issueAId, issueBId, result }) => [
           "xadd",
-          `${app}:${property}-comparisons:${teamId}`,
+          `linear:effort-comparisons:${teamId}`,
           "maxlen",
           "~",
           "10000",
@@ -188,15 +179,15 @@ const postComparisons = async (
             ? [
                 [
                   "xrange",
-                  `${app}:${property}-comparisons:${teamId}`,
+                  `linear:effort-comparisons:${teamId}`,
                   `(${highWaterMark}`,
                   "+",
                   "COUNT",
                   "10000",
                 ],
               ]
-            : []
-        )
+            : [],
+        ),
     ),
   });
 
@@ -215,7 +206,7 @@ const postComparisons = async (
 
     if (!Array.isArray(xRangeData.result)) {
       throw Error(
-        "New comparisons returned from Redis in an unexpected format."
+        "New comparisons returned from Redis in an unexpected format.",
       );
     }
 
@@ -227,7 +218,7 @@ const postComparisons = async (
         issueBId,
         result: result === "1" ? 1 : 0,
         userId,
-      })
+      }),
     );
   }
 
@@ -235,12 +226,12 @@ const postComparisons = async (
 };
 
 export const GET = async (_: Request, { params }: { params: Params }) => {
-  const data = await getComparisons("linear", params.teamId, "effort");
+  const data = await getComparisons(params.teamId);
   return NextResponse.json(data);
 };
 
 export const POST = async (req: Request, { params }: { params: Params }) => {
   const body = await req.json();
-  const data = await postComparisons("linear", params.teamId, "effort", body);
+  const data = await postComparisons(params.teamId, body);
   return NextResponse.json(data);
 };
